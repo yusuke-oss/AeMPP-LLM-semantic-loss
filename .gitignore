@@ -1,0 +1,30 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Dataset
+data/
+datasets/
+
+# Training outputs
+logs/
+result/
+results/
+save_model/
+save_weight/
+checkpoints/
+
+# Temporary files
+.ipynb_checkpoints/
+.DS_Store
+*.tmp
+
