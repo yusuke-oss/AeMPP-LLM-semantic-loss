@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from sklearn.metrics import precision_recall_fscore_support
 import random  # ⬅️ これを追加
-from src.tpp_llm.taxi_renew_vocab2.model import TPPLLMModel
+from src.tpp_llm.taxi.model import TPPLLMModel
 import time  # ⭕️ 追加
 from sklearn.metrics import cohen_kappa_score
 
@@ -28,7 +28,7 @@ class TPPLLMRunner(object):
     """
 
     def __init__(
-        self, model: TPPLLMModel, beta_type: float = 1, beta_time: float = 1, device: Union[str, torch.device] = 'cpu'
+        self, model: TPPLLMModel, beta_type: float = 1, beta_time: float = 1,beta_ll:float=1, device: Union[str, torch.device] = 'cpu'
         ,weight_path:str='',load_flag:bool=False):
         """
         Initialize the TPP-LLM runner.
@@ -42,10 +42,9 @@ class TPPLLMRunner(object):
 
 
         self.model = model
-        #self.beta_type = 0.1
-        self.beta_type = 1.0
-        self.beta_time = 0.4
-        #self.beta_time = 1
+        self.beta_type = beta_type
+        self.beta_time = beta_time
+        self.beta_ll=beta_ll
         self.device = torch.device(device)
 
         self.num_train_epochs = 0
@@ -103,22 +102,18 @@ class TPPLLMRunner(object):
             # 予測結果はTrainでは使わないので _ で無視し、raw_semantic_loss の受け取りを削除
             batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h, raw_cb_p, raw_cb_h ,temp_embs_for_loss,batch_hidden_states= self.model.compute_loss(batch)
                         
-            # Lossの計算をシンプルに
-            #batch_loss = torch.sum(
-            #    batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses)
+            
             # 1. 基本のタスク損失（系列ごとの配列）
-            #base_losses = 0.3*batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
-            base_losses = batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
+            base_losses = self.beta_ll * batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
             batch_type_loss = torch.sum(batch_type_losses)
             batch_time_loss = torch.sum(batch_time_losses)
             batch_nll_loss = torch.sum(batch_nll_losses)
             # 2. 🌟 Codebook loss が存在する場合は重みをかけて加算する
             if codebook_losses is not None:
                 total_losses_per_seq = base_losses +  codebook_losses
-                            # 最後に全体を合計する
+                # 最後に全体を合計する
                 batch_loss = torch.sum(total_losses_per_seq)
-                            
-                            # ログ・コンソール出力用のスカラー値（ペナルティ適用後の合計値）
+                # ログ・コンソール出力用のスカラー値（ペナルティ適用後の合計値）
                 loss_codebook_val = torch.sum( codebook_losses).item()
             else:
                 batch_loss = torch.sum(base_losses)
@@ -133,7 +128,6 @@ class TPPLLMRunner(object):
                 'loss_tpp': torch.sum(batch_nll_losses).float().cpu().item(),
                 'loss_type': torch.sum(batch_type_losses).float().cpu().item(),
                 'loss_time': torch.sum(batch_time_losses).float().cpu().item(),
-                # semantic_loss は削除
                 'loss_codebook': loss_codebook_val,  # 🌟 コンソール出力・ログに追加
                 'raw_P_loss': torch.sum(raw_cb_p).item() if raw_cb_p is not None else 0.0, # 🌟 コンソール用
                 'raw_H_loss': torch.sum(raw_cb_h).item() if raw_cb_h is not None else 0.0, # 🌟 コンソール用    
@@ -149,8 +143,6 @@ class TPPLLMRunner(object):
             batch_next_event_times_shifted = self.move_to_numpy_next(batch_next_event_times)
             batch_event_time_deltas_shifted = self.move_to_numpy_prev(batch['time_since_last_event'])
 
-
-            # 戻り値を11個に増やす（15個受け取って必要なものを返す）
             return batch_event_nums, batch_log_likelihoods, batch_event_types_shifted, \
                     batch_next_event_types_shifted, batch_event_times_shifted, \
                     batch_next_event_times_shifted, batch_event_time_deltas_shifted, \
@@ -160,29 +152,21 @@ class TPPLLMRunner(object):
 
         elif phase == 'eval':
             self.model.eval()
-
             batch_event_times = batch['time_since_start']
             batch_event_types = batch['type_event']
             batch_event_time_deltas = batch['time_since_last_event']
 
             # ========== 変更後 ==========
             with torch.no_grad():
-                # 🌟 compute_loss 1回で「Loss」も「予測結果」も一気に取得する！
-                batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h, raw_cb_p, raw_cb_h ,temp_embs_for_loss,batch_hidden_states= self.model.compute_loss(batch)
-                                
-                base_losses = 0.3*batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
+                batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h, raw_cb_p, raw_cb_h ,temp_embs_for_loss,batch_hidden_states= self.model.compute_loss(batch)   
+                base_losses = self.beta_ll * batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
                 
                 # シーケンス全体の合計を出してスカラーに変換
                 batch_loss = torch.sum(base_losses).float().cpu().item()
                 batch_type_loss = torch.sum(batch_type_losses).float().cpu().item()
                 batch_time_loss = torch.sum(batch_time_losses).float().cpu().item()
                 batch_nll_loss = torch.sum(batch_nll_losses).float().cpu().item()
-                
                 batch_log_likelihoods = -batch_nll_losses
-
-            # Predict next events
-            #batch_event_nums, batch_log_likelihoods, batch_next_event_types, batch_next_event_times = \
-            #    self.model.predict_next_events(batch)
 
             # Shift and convert tensors
             batch_event_nums = batch_event_nums.numpy(force=True)
@@ -192,7 +176,6 @@ class TPPLLMRunner(object):
             batch_next_event_types_shifted = self.move_to_numpy_next(batch_next_event_types)
             batch_next_event_times_shifted = self.move_to_numpy_next(batch_next_event_times)
             batch_event_time_deltas_shifted = self.move_to_numpy_prev(batch_event_time_deltas)
-            #batch_event_mags_shifted = self.move_to_numpy_prev(batch_event_mags)
 
             # 戻り値を9個に変更 (0.0を削除, Noneをbatch_lossに変更)
             return batch_event_nums, batch_log_likelihoods, batch_event_types_shifted, \
@@ -251,8 +234,7 @@ class TPPLLMRunner(object):
 
         # ★ enumerate でステップ数を取得
         for step, batch in enumerate(tqdm(dataloader)):
-            
-            
+
             start_inf_time = time.time()
 
             # 🌟 16個の値を受け取る
@@ -315,9 +297,7 @@ class TPPLLMRunner(object):
                     if emb.weight.grad is not None:
                         nonzero = (emb.weight.grad.abs().sum(dim=1) > 0).sum().item()
                         print(f"[grad-check] nonzero embedding rows: {nonzero} (should equal num_added_tokens)")
-            
 
-                    
                     # Update the parameters
                     self.optimizer.step()
                     
@@ -329,11 +309,6 @@ class TPPLLMRunner(object):
                     
                     # Update the Global Step
                     self.global_step += 1
-
-                    
-            
-                    
-
                 # ========================================================
 
             
@@ -351,7 +326,6 @@ class TPPLLMRunner(object):
             # ============================================================
             if phase == 'eval':
                 for i in range(len(event_types)):
-
                     # --------------------------------------------
                     # Input vector
                     # --------------------------------------------
@@ -366,7 +340,6 @@ class TPPLLMRunner(object):
                         )
                     else:
                         input_vector = []
-
                     # --------------------------------------------
                     # Hidden vector
                     # --------------------------------------------
@@ -381,7 +354,6 @@ class TPPLLMRunner(object):
                         )
                     else:
                         hidden_vector = []
-
                     # --------------------------------------------
                     # raw_data
                     # --------------------------------------------
@@ -526,28 +498,7 @@ class TPPLLMRunner(object):
 
                         'hidden_vector': hidden_vector,
                     })
-                """
-            for i in range(len(event_types)):
-                raw_event_data_list.append({
-                    'true_types': event_types[i].tolist() if isinstance(event_types[i], np.ndarray) else event_types[i],
-                    'pred_types': event_type_preds[i].tolist() if isinstance(event_type_preds[i], np.ndarray) else event_type_preds[i],
-                    'true_times': event_times[i].tolist() if isinstance(event_times[i], np.ndarray) else event_times[i],
-                    'pred_times': event_time_preds[i].tolist() if isinstance(event_time_preds[i], np.ndarray) else event_time_preds[i],
-                    # 🌟🌟🌟 追加: 補助情報と選ばれた単語も保存 (他のデータと長さを合わせるため [1:] でスライス)
-                    'dis': batch_dis[i][0:].tolist() if i < len(batch_dis) else [],
-                    'lats': batch_lats[i][0:].tolist() if i < len(batch_lats) else [],
-                    'lons': batch_lons[i][0:].tolist() if i < len(batch_lons) else [],
-                    'time': batch_event_time_t[i][0:].tolist() if i < len(batch_event_time_t) else [],
-                    'type': batch_event_type_t[i][0:].tolist() if i < len(batch_event_type_t) else [],
-                    'words_p': batch_words_p[i][0:] if batch_words_p and i < len(batch_words_p) else [],
-                    'words_h': batch_words_h[i][0:] if batch_words_h and i < len(batch_words_h) else [],
-                    'dist_p': batch_distination_p[i][0:] if batch_distination_p and i < len(batch_distination_p) else [],
-                    'dist_h': batch_distination_h[i][0:] if batch_distination_h and i < len(batch_distination_h) else [],
-                    'dist_eq_p': batch_dist_eq_p[i][0:] if batch_dist_eq_p and i < len(batch_dist_eq_p) else [],
-                    'dist_eq_h': batch_dist_eq_h[i][0:] if batch_dist_eq_h and i < len(batch_dist_eq_h) else [],
-                                    
-                })
-            """    
+
             all_event_types.append(np.concatenate(event_types))
             all_event_type_preds.append(np.concatenate(event_type_preds))
             all_event_times.append(np.concatenate(event_times))
@@ -620,8 +571,6 @@ class TPPLLMRunner(object):
         avg_inf_time_ms = (total_inference_time / total_num_events) * 1000 if total_num_events > 0 else 0
         metrics['avg_inf_time_per_event(ms)'] = float(avg_inf_time_ms)
 
-        
-            
         seq_accuracies = []
         seq_rmses = []
         seq_f1s = []
@@ -671,7 +620,7 @@ class TPPLLMRunner(object):
         dataloader_train: DataLoader = None, dataloader_val: DataLoader = None,
         dataloader_test: DataLoader = None, learning_rate: float = 5e-4, lr_scheduler_type: str = 'constant',
         num_train_epochs: int = 1, warmup_ratio: float = 0, result_save_path: str = '',
-        weight_path: str = '', model_weight_path: str = '', figure_path: str = '', save_flag: bool = False, train_flag: bool = False,resume_flag=False,
+        weight_path: str = '', model_weight_path: str = '', figure_path: str = '', save_flag: bool = False, train_flag: bool = False,
         gradient_accumulation_steps: int = 1,temporal_emb_type: str=""
     ) -> None:
         """
@@ -708,51 +657,6 @@ class TPPLLMRunner(object):
 
         start_epoch = 0
 
-        if resume_flag:
-            base_weight = os.path.join(weight_path, 'model.pth')
-            checkpoint_path = os.path.join(weight_path, 'training_checkpoint.pth')
-            
-            if os.path.exists(base_weight):
-                # 保存先パスを「_resume」に変更（既存の動作を維持）
-                result_save_path = result_save_path.rstrip('/') + '_resume'
-                weight_path = weight_path.rstrip('/') + '_resume'
-                model_weight_path = model_weight_path.rstrip('/') + '_resume'
-                os.makedirs(result_save_path, exist_ok=True)
-                os.makedirs(weight_path, exist_ok=True)
-                os.makedirs(model_weight_path, exist_ok=True)
-
-                self.model.load_state_dict(torch.load(base_weight, map_location=self.device, weights_only=False), strict=False)
-
-                # ⬇️ 追加: チェックポイントが存在すれば勢いや乱数を完全に復元
-                if os.path.exists(checkpoint_path):
-                    checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=False)
-                    start_epoch = checkpoint['epoch'] + 1
-                    
-                    if self.optimizer and checkpoint['optimizer_state_dict']:
-                        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-                    if self.scheduler and checkpoint['scheduler_state_dict']:
-                        self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-                    
-                    if checkpoint['metrics_val_best']:
-                        metrics_val_best = checkpoint['metrics_val_best']
-                    
-                    # 乱数状態の復元
-                    torch.set_rng_state(checkpoint['rng_state'].cpu())
-                    # cuda_rng_state はリスト形式で保存されているため、リスト内包表記で全て .cpu() にする
-                    torch.cuda.set_rng_state_all([s.cpu() for s in checkpoint['cuda_rng_state']])
-                    np.random.set_state(checkpoint['np_rng_state'])
-                    random.setstate(checkpoint['py_rng_state'])
-                    
-                    print(f"\n==================================================")
-                    print(f" 🔄 【完全再開モード】 モデル重み、オプティマイザの勢い、乱数状態を復元しました。")
-                    print(f" ▶️ Epoch {start_epoch} から学習を継続します。")
-                    print(f"==================================================\n")
-                else:
-                    # 以前のバージョン（チェックポイント未作成）から再開する場合のフォールバック
-                    print(f"⚠️ チェックポイントが見つかりません。重みのみをロードします。")
-                    # (必要であれば元の val.txt からエポックを逆算する処理をここに残してもOKです)
-
-
         # Initial validation
         if dataloader_val:
             if hasattr(self.model, 'reset_topk_debug_flags'):
@@ -777,7 +681,6 @@ class TPPLLMRunner(object):
                     all_types_true, all_types_pred, all_times_true, all_time_preds, all_time_deltas_true,
                     result_save_path, "initial_val","initial",self.model, seq_scores_val
                 )
-            
         # ---------------------------------------------------------
         # Initial Test
         # ---------------------------------------------------------
@@ -803,11 +706,8 @@ class TPPLLMRunner(object):
                     all_types_true_test, all_types_pred_test, all_times_true_test, all_time_preds_test, all_time_deltas_true_test,
                     result_save_path, "initial_test","initial",self.model, seq_scores_test
                 )
-        
         patience = 10
         epochs_no_improve = 0
-
-        
 
         # ループを start_epoch から始まるように変更
         for epoch in range(start_epoch, int(num_train_epochs)):
@@ -915,12 +815,6 @@ class TPPLLMRunner(object):
             if save_flag or train_flag:
                 self.plot_learning_curves(result_save_path)
                     
-        # 🌟🌟🌟 ここに追加 🌟🌟🌟
-        # 全ての学習ループが終わった（またはEarly Stoppingで抜けた）直後にグラフを描画・保存
-        #if save_flag or train_flag:
-        #    self.plot_learning_curves(result_save_path)
-
-
     # 修正前: def save(self, model_weight_path: str, weight_path: str):
     def save(self, model_weight_path: str, weight_path: str, epoch: int = 0, metrics_val_best: dict = None):
         self.model.save_models(model_weight_path)

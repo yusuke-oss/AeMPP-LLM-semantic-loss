@@ -31,29 +31,6 @@ def float32_to_byte_tokens(value):
 def float32_list_to_byte_token_list(values):
     return [float32_to_byte_tokens(v) for v in values]
 
-def collate_fn(batch: dict) -> dict:
-    """
-    batch: items in a batch
-    mag_dist: frozen distribution object for magnitude
-    dep_dist: frozen distribution object for depth
-    """
-    
-    return {
-        'time_since_start': [torch.FloatTensor(item['time_since_start']) for item in batch],
-        'time_since_last_event': [torch.FloatTensor(item['time_since_last_event']) for item in batch],
-        'type_event': [torch.LongTensor(item['type_event']) for item in batch],
-        'type_text': [item['type_text'] for item in batch],
-        'magnitude' : [torch.FloatTensor(item['magnitude']) for item in batch],
-        'depth': [torch.FloatTensor(item['depth']) for item in batch],
-        'latitude' : [torch.FloatTensor(item['latitude']) for item in batch],
-        'longitude': [torch.FloatTensor(item['longitude']) for item in batch],
-    }
-
-
-# ==========================================
-# data.py の collate_fn 部分を以下に置き換えます
-# ==========================================
-
 def get_collate_fn(stats=None):
     """
     stats（統計量）を受け取って、標準化機能付きの collate_fn を返すファクトリ関数
@@ -100,7 +77,7 @@ def get_collate_fn(stats=None):
                 norm_lat = (raw_lat - lat_mean) / (lat_std + 1e-8)
                 norm_lon = (raw_lon - lon_mean) / (lon_std + 1e-8)
 
-                # 3. 標準化された数値をバイトトークンリストに変換！
+                # 3. 標準化された数値をバイトトークンリストに変換
                 time_tokens.append(float32_list_to_byte_token_list(norm_time))
                 mag_tokens.append(float32_list_to_byte_token_list(norm_mag))
                 dep_tokens.append(float32_list_to_byte_token_list(norm_dep))
@@ -133,11 +110,6 @@ def create_few_shot_dataset(data_dir, output_dir, few_shot_ratio=0.1, seed=0) ->
     shutil.copy(test_file, os.path.join(output_dir, 'test.json'))
     print(f"Few-shot dataset created in {output_dir}.")
 
-
-import os
-import json
-import numpy as np
-
 def get_all_data_stats(dataset_dir):
     """
     Reads all Train files and calculates the global 
@@ -157,7 +129,6 @@ def get_all_data_stats(dataset_dir):
     # クラスごとのマグニチュードを収集
     mags_by_class = {k: [] for k in range(3)}
 
-    # すべてのデータを集めるためのリスト
     all_mag = []
     all_dep = []
     all_time = []
@@ -282,7 +253,6 @@ def get_all_data_stats(dataset_dir):
             class_centers[k] = None
 
     stats['magnitude_class_centers'] = class_centers
-
     print("Magnitude class centers:")
     for k, center in class_centers.items():
         print(f"  > Class {k}: {center}")

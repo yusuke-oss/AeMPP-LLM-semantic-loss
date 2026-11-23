@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from sklearn.metrics import precision_recall_fscore_support
 import random  # ⬅️ これを追加
-from src.tpp_llm.us_earthquake_renew_vocab.model import TPPLLMModel
+from src.tpp_llm.earthquake.model import TPPLLMModel
 
 class TPPLLMRunner(object):
     """
@@ -27,7 +27,7 @@ class TPPLLMRunner(object):
     """
 
     def __init__(
-        self, model: TPPLLMModel, beta_type: float = 1, beta_time: float = 1,device: Union[str, torch.device] = 'cpu'
+        self, model: TPPLLMModel, beta_type: float = 1, beta_time: float = 1,beta_ll:float=1,device: Union[str, torch.device] = 'cpu'
         ,weight_path:str='',load_flag:bool=False):
         """
         Initialize the TPP-LLM runner.
@@ -41,8 +41,12 @@ class TPPLLMRunner(object):
 
 
         self.model = model
-        self.beta_type = 0.1
-        self.beta_time = 1
+        self.beta_type = beta_type
+        self.beta_time = beta_time
+        self.beta_ll=beta_ll
+        print(beta_ll)
+        print(beta_type)
+        print(beta_time)
         self.device = torch.device(device)
 
         self.num_train_epochs = 0
@@ -108,7 +112,7 @@ class TPPLLMRunner(object):
             #batch_loss = torch.sum(
             #    batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses)
             # 1. 基本のタスク損失（系列ごとの配列）
-            base_losses = 0.3*batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
+            base_losses = self.beta_ll*batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
             batch_type_loss = torch.sum(batch_type_losses)
             batch_time_loss = torch.sum(batch_time_losses)
             batch_nll_loss = torch.sum(batch_nll_losses)
@@ -178,7 +182,7 @@ class TPPLLMRunner(object):
                 #else:
                 #    total_losses = base_losses
 
-                base_losses = 0.3*batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
+                base_losses =self.beta_ll* batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
 
                 # シーケンス全体の合計を出してスカラーに変換
                 batch_loss = torch.sum(base_losses).float().cpu().item()
@@ -721,7 +725,7 @@ class TPPLLMRunner(object):
         dataloader_train: DataLoader = None, dataloader_val: DataLoader = None,
         dataloader_test: DataLoader = None, learning_rate: float = 5e-4, lr_scheduler_type: str = 'constant',
         num_train_epochs: int = 1, warmup_ratio: float = 0, result_save_path: str = '',
-        weight_path: str = '', model_weight_path: str = '', figure_path: str = '', save_flag: bool = False, train_flag: bool = False,resume_flag=False,
+        weight_path: str = '', model_weight_path: str = '', figure_path: str = '', save_flag: bool = False, train_flag: bool = False,
         gradient_accumulation_steps: int = 1,temporal_emb_type: str=""
     ) -> None:
         """
@@ -758,51 +762,6 @@ class TPPLLMRunner(object):
         metrics_val_best = None
 
         start_epoch = 0
-
-        if resume_flag:
-            base_weight = os.path.join(weight_path, 'model.pth')
-            checkpoint_path = os.path.join(weight_path, 'training_checkpoint.pth')
-            
-            if os.path.exists(base_weight):
-                # 保存先パスを「_resume」に変更（既存の動作を維持）
-                result_save_path = result_save_path.rstrip('/') + '_resume'
-                weight_path = weight_path.rstrip('/') + '_resume'
-                model_weight_path = model_weight_path.rstrip('/') + '_resume'
-                os.makedirs(result_save_path, exist_ok=True)
-                os.makedirs(weight_path, exist_ok=True)
-                os.makedirs(model_weight_path, exist_ok=True)
-
-                self.model.load_state_dict(torch.load(base_weight, map_location=self.device, weights_only=False), strict=False)
-
-                # ⬇️ 追加: チェックポイントが存在すれば勢いや乱数を完全に復元
-                if os.path.exists(checkpoint_path):
-                    checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=False)
-                    start_epoch = checkpoint['epoch'] + 1
-                    
-                    if self.optimizer and checkpoint['optimizer_state_dict']:
-                        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-                    if self.scheduler and checkpoint['scheduler_state_dict']:
-                        self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-                    
-                    if checkpoint['metrics_val_best']:
-                        metrics_val_best = checkpoint['metrics_val_best']
-                    
-                    # 乱数状態の復元
-                    torch.set_rng_state(checkpoint['rng_state'].cpu())
-                    # cuda_rng_state はリスト形式で保存されているため、リスト内包表記で全て .cpu() にする
-                    torch.cuda.set_rng_state_all([s.cpu() for s in checkpoint['cuda_rng_state']])
-                    np.random.set_state(checkpoint['np_rng_state'])
-                    random.setstate(checkpoint['py_rng_state'])
-                    
-                    print(f"\n==================================================")
-                    print(f" 🔄 【完全再開モード】 モデル重み、オプティマイザの勢い、乱数状態を復元しました。")
-                    print(f" ▶️ Epoch {start_epoch} から学習を継続します。")
-                    print(f"==================================================\n")
-                else:
-                    # 以前のバージョン（チェックポイント未作成）から再開する場合のフォールバック
-                    print(f"⚠️ チェックポイントが見つかりません。重みのみをロードします。")
-                    # (必要であれば元の val.txt からエポックを逆算する処理をここに残してもOKです)
-
 
         # Initial validation
         if dataloader_val:
@@ -860,8 +819,6 @@ class TPPLLMRunner(object):
         
         patience = 10
         epochs_no_improve = 0
-
-        
 
         # ループを start_epoch から始まるように変更
         for epoch in range(start_epoch, int(num_train_epochs)):

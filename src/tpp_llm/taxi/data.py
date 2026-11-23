@@ -31,28 +31,6 @@ def float32_to_byte_tokens(value):
 def float32_list_to_byte_token_list(values):
     return [float32_to_byte_tokens(v) for v in values]
 
-def collate_fn(batch: dict) -> dict:
-    """
-    batch: items in a batch
-    mag_dist: frozen distribution object for magnitude
-    dep_dist: frozen distribution object for depth
-    """
-    
-    return {
-        'time_since_start': [torch.FloatTensor(item['time_since_start']) for item in batch],
-        'time_since_last_event': [torch.FloatTensor(item['time_since_last_event']) for item in batch],
-        'type_event': [torch.LongTensor(item['type_event']) for item in batch],
-        'type_text': [item['type_text'] for item in batch],
-        'latitude' : [torch.FloatTensor(item['latitude']) for item in batch],
-        'longitude' : [torch.FloatTensor(item['longitude']) for item in batch],
-        'distance' : [torch.FloatTensor(item['distance']) for item in batch],
-    }
-
-
-# ==========================================
-# data.py の collate_fn 部分を以下に置き換えます
-# ==========================================
-
 def get_collate_fn(stats=None):
     """
     stats（統計量）を受け取って、標準化機能付きの collate_fn を返すファクトリ関数
@@ -70,8 +48,6 @@ def get_collate_fn(stats=None):
                 if item['type_event'][j] in pickup_ids:
                     item['distance'][j] = 0.0  # リストの中身を直接 0.0 に上書き
         # ==========================================================
-
-        
         # 返却用の辞書を準備
         collated = {
             'time_since_start': [torch.FloatTensor(item['time_since_start']) for item in batch],
@@ -90,7 +66,6 @@ def get_collate_fn(stats=None):
             lon_mean, lon_std = stats['lon']['mean'], stats['lon']['std']
             dis_mean, dis_std = stats['dis']['mean'], stats['dis']['std']
             
-            
             time_tokens = []
             lat_tokens = []
             lon_tokens = []
@@ -103,23 +78,22 @@ def get_collate_fn(stats=None):
                 raw_lon = np.array(item['longitude'], dtype=np.float32)
                 raw_dis = np.array(item['distance'], dtype=np.float32)
 
-
                 # 2. 標準化（ゼロ除算防止に 1e-8 を足す）
                 norm_time = (raw_time - time_mean) / (time_std + 1e-8)
                 norm_lat = (raw_lat - lat_mean) / (lat_std + 1e-8)
                 norm_lon = (raw_lon - lon_mean) / (lon_std + 1e-8)
                 norm_dis = (raw_dis - dis_mean) / (dis_std + 1e-8)
 
-                # 3. 標準化された数値をバイトトークンリストに変換！
+                # 3. 標準化された数値をバイトトークンリストに変換
                 time_tokens.append(float32_list_to_byte_token_list(norm_time))
                 lat_tokens.append(float32_list_to_byte_token_list(norm_lat))
                 lon_tokens.append(float32_list_to_byte_token_list(norm_lon))
                 dis_tokens.append(float32_list_to_byte_token_list(norm_dis))
 
             collated['time_float'] = time_tokens       # 標準化済みのバイトトークン文字列
-            collated['latitude_float'] = lat_tokens  # 標準化済みのバイトトークン文字列
-            collated['longitude_float'] = lon_tokens      # 標準化済みのバイトトークン文字列
-            collated['distance_float'] = dis_tokens      # 標準化済みのバイトトークン文字列
+            collated['latitude_float'] = lat_tokens  
+            collated['longitude_float'] = lon_tokens      
+            collated['distance_float'] = dis_tokens      
 
         return collated
 
@@ -142,10 +116,6 @@ def create_few_shot_dataset(data_dir, output_dir, few_shot_ratio=0.1, seed=0) ->
     print(f"Few-shot dataset created in {output_dir}.")
 
 
-import os
-import json
-import numpy as np
-
 def get_all_data_stats(dataset_dir):
     """
     Reads all Train files and calculates the global 
@@ -161,7 +131,6 @@ def get_all_data_stats(dataset_dir):
         'delta': {'min': float('inf'), 'max': float('-inf'), 'mean': 0.0, 'std': 1.0}
     }
 
-    # すべてのデータを集めるためのリスト
     all_lat= []
     all_lon = []
     all_dis = []

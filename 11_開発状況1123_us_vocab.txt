@@ -1,0 +1,46 @@
+<テキスト概要>
+このテキストはAIに対して開発状況を共有するものです。この開発状況を見て修正や機能追加、提案などを行ってください。
+修正を提案する場合、修正がしやすいようにできるかぎり関数毎、もしくはクラス、小さいファイルなら全文を教えて下さい。全文ではない場合もインデントを元のインデントに合わせてください。
+修正がファイル全文の場合は「全文修正」と一言伝えてください。
+修正を提案する際、修正のファイルパス提示するようにお願いします。
+なるべくデータ量を小さくするため、10MB以上のデータは省略されています。そのため、もし、さらなる情報が必要な場合は、以下のように伝えてください。その後追加情報を提供します。〇〇.xxは追加情報が必要なファイル名です。複数必要であれば必要に応じてコマンドを修正してください。
+「echo "<〇〇.xx>" > 12_追加提供情報データ.txt && cat 〇〇.xx >> 12_追加提供情報データ.txt && echo "</〇〇.xx>" >> 12_追加提供情報データ.txt」
+
+収集する特定のパスリスト: ['src/tpp_llm/us_earthquake_renew_vocab/analysis.py', 'src/tpp_llm/us_earthquake_renew_vocab/common_utils.py', 'src/tpp_llm/us_earthquake_renew_vocab/data.py', 'src/tpp_llm/us_earthquake_renew_vocab/layers.py', 'src/tpp_llm/us_earthquake_renew_vocab/model.py', 'src/tpp_llm/us_earthquake_renew_vocab/runner.py', 'src/tpp_llm/us_earthquake_renew_vocab/utils.py', 'scripts/us_earthquake_renew_vocab/train_tpp_llm.py']
+ファイル階層を表示する際に除外するディレクトリのリスト: ['configs', 'file_sh', 'notebook', 'images,analysis', 'data', 'save_model', 'save_weight', 'result', '.git', 'logs', 'old', 'venv', '__pycache__', 'venv', 'migrations', 'static', 'mailform']
+</テキスト概要>
+
+<ディレクトリ構造>
+├── .gitignore
+├── 10_データ収集.py
+├── 10_データ収集_taxi.py
+├── 11_開発状況1121_taxi_vocab.txt
+├── 11_開発状況1121_us_vocab.txt
+├── 11_開発状況1123_taxi_vocab.txt
+├── 11_開発状況1123_us_vocab.txt
+├── README.md
+├── scripts
+│   ├── earthquake
+│   │   └── train_tpp_llm.py
+│   └── taxi
+│       └── train_tpp_llm.py
+└── src
+    └── tpp_llm
+        ├── earthquake
+        │   ├── analysis.py
+        │   ├── common_utils.py
+        │   ├── data.py
+        │   ├── layers.py
+        │   ├── model.py
+        │   ├── runner.py
+        │   └── utils.py
+        └── taxi
+            ├── analysis.py
+            ├── common_utils.py
+            ├── data.py
+            ├── layers.py
+            ├── model.py
+            ├── runner.py
+            └── utils.py
+</ディレクトリ構造>
+
