@@ -10,11 +10,11 @@ The framework is evaluated on two datasets:
 - **U.S. Earthquake:** Latitude, longitude, magnitude, and depth.
 
 Two pretrained LLM backbones are supported: TinyLlama-1.1B-Chat-v1.0 and Gemma-2-2B-it.
+
 <div align="center">
-  <img src="images/proposed_architecture.png" alt="AeMPP-LLM Architecture" width="1020"/>
-  <p><em>Overview of our AeMPP-LLM architecture. Continuous variables are encoded via MLPs and aligned to frozen LLM target anchors using MSE Loss.</em></p>
+  <img src="images/proposed_architecture.png" alt="LLM-AeMPP Architecture" width="1020"/>
+  <p><em>Overview of our LLM-AeMPP architecture. Continuous variables are encoded via MLPs and aligned to frozen LLM target anchors using MSE loss.</em></p>
 </div>
----
 
 ## Table of Contents
 
