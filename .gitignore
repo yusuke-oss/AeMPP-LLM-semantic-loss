@@ -35,3 +35,5 @@ checkpoints/
 11_開発状況1123_taxi_vocab.txt
 11_開発状況1123_us_vocab.txt
 11_開発状況1121_taxi_vocab.txt
+
+file_sh/taxi_gemma2.sh
