@@ -1,4 +1,4 @@
-# AeMPP-LLM
+# AeMPP-LLM-semantic-loss
 
 This repository provides an extended implementation of [TPP-LLM](https://arxiv.org/abs/2410.02062) for temporal event sequence prediction using Large Language Models (LLMs).
 
@@ -12,6 +12,11 @@ AeMPP-LLM integrates multiple numerical attributes of an event into a single con
 - Support for TinyLlama and Gemma.
 - Multiple numerical representation baselines.
 - Training, evaluation, and representation analysis utilities.
+
+<div align="center">
+  <img src="images/proposed_architecture" alt="TPP-LLM with Semantic Loss Architecture" width="1020"/>
+  <p><em>Overview of our enhanced AeMPP-LLM architecture. Continuous variables are encoded via MLPs and aligned to frozen LLM target anchors using MSE Loss.</em></p>
+</div>
 
 ## Supported Datasets and Models
 
@@ -33,7 +38,7 @@ Processed datasets are available on Hugging Face:
 
 Place the downloaded dataset files in the following directories:
 
-```text
+```text id="3kz1m2"
 data/
 ├── nyc_taxi/
 │   ├── train.json
@@ -48,8 +53,8 @@ data/
 
 ## Directory Structure
 
-```text
-AeMPP-LLM/
+```text id="4nq7w2"
+AeMPP-LLM-semantic-loss/
 ├── configs/
 │   ├── tpp_llm_nt.config
 │   ├── tpp_llm_nt_gemma.config
@@ -101,27 +106,27 @@ AeMPP-LLM/
 
 ### 1. Clone the repository
 
-```bash
-git clone <YOUR_REPOSITORY_URL>
-cd AeMPP-LLM
+```bash id="6p2v9m"
+git clone https://github.com/yusuke-oss/AeMPP-LLM-semantic-loss.git
+cd AeMPP-LLM-semantic-loss
 ```
 
 ### 2. Create a virtual environment
 
-```bash
+```bash id="8c4x1n"
 conda create -n aempp-llm python=3.10
 conda activate aempp-llm
 ```
 
 ### 3. Install dependencies
 
-```bash
+```bash id="2v5m8k"
 pip install -r requirements.txt
 ```
 
 ### 4. Set the Python path
 
-```bash
+```bash id="9q3w7j"
 export PYTHONPATH=$PYTHONPATH:src
 ```
 
@@ -137,13 +142,13 @@ Before execution, check the GPU device settings in the shell scripts and modify 
 
 **TinyLlama**
 
-```bash
+```bash id="1w7k3p"
 bash file_sh/taxi_llama.sh
 ```
 
 **Gemma**
 
-```bash
+```bash id="5m8x2q"
 bash file_sh/taxi_gemma.sh
 ```
 
@@ -151,13 +156,13 @@ bash file_sh/taxi_gemma.sh
 
 **TinyLlama**
 
-```bash
+```bash id="7j2n4v"
 bash file_sh/earthquake_llama.sh
 ```
 
 **Gemma**
 
-```bash
+```bash id="3q9w6k"
 bash file_sh/earthquake_gemma.sh
 ```
 
@@ -167,14 +172,14 @@ The training scripts can also be executed directly using configuration files.
 
 For U.S. Earthquake:
 
-```bash
+```bash id="4v8m2x"
 python scripts/earthquake/train_tpp_llm.py \
     @configs/tpp_llm_ue.config
 ```
 
 For NYC Taxi:
 
-```bash
+```bash id="6k1p9w"
 python scripts/taxi/train_tpp_llm.py \
     @configs/tpp_llm_nt.config
 ```
@@ -213,7 +218,7 @@ Training logs, model weights, and evaluation results are saved under the configu
 
 This project is based on TPP-LLM:
 
-```bibtex
+```bibtex id="8r2m5v"
 @misc{liu2025tppllmmodelingtemporalpoint,
   title         = {TPP-LLM: Modeling Temporal Point Processes by Efficiently Fine-Tuning Large Language Models},
   author        = {Zefang Liu and Yinzhu Quan},
