@@ -20,7 +20,7 @@ AeMPP-LLM integrates multiple numerical attributes of an event into a single con
 | NYC Taxi | Latitude, longitude, distance | 8 |
 | U.S. Earthquake | Latitude, longitude, magnitude, depth | 3 |
 
-| Model | Hugging Face |
+| Model | Hugging Face identifier |
 |---|---|
 | TinyLlama | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
 | Gemma | `google/gemma-2-2b-it` |
@@ -31,7 +31,7 @@ Processed datasets are available on Hugging Face:
 
 **[AeMPP-LLM-semantic-loss](https://huggingface.co/datasets/yusuke-oss/AeMPP-LLM-semantic-loss)**
 
-Download the datasets and place them in the following directories:
+Place the downloaded dataset files in the following directories:
 
 ```text
 data/
@@ -72,12 +72,29 @@ AeMPP-LLM/
 ├── src/
 │   └── tpp_llm/
 │       ├── earthquake/
+│       │   ├── analysis.py
+│       │   ├── common_utils.py
+│       │   ├── data.py
+│       │   ├── layers.py
+│       │   ├── model.py
+│       │   ├── runner.py
+│       │   └── utils.py
+│       │
 │       └── taxi/
+│           ├── analysis.py
+│           ├── common_utils.py
+│           ├── data.py
+│           ├── layers.py
+│           ├── model.py
+│           ├── runner.py
+│           └── utils.py
 │
 ├── data/
 ├── result/
 ├── save_model/
-└── save_weight/
+├── save_weight/
+├── requirements.txt
+└── README.md
 ```
 
 ## Installation
@@ -99,8 +116,7 @@ conda activate aempp-llm
 ### 3. Install dependencies
 
 ```bash
-pip install torch transformers peft accelerate bitsandbytes
-pip install numpy scikit-learn matplotlib tqdm
+pip install -r requirements.txt
 ```
 
 ### 4. Set the Python path
@@ -108,6 +124,8 @@ pip install numpy scikit-learn matplotlib tqdm
 ```bash
 export PYTHONPATH=$PYTHONPATH:src
 ```
+
+A CUDA-compatible GPU is recommended. Make sure that your PyTorch and CUDA environments are compatible.
 
 ## Usage
 
@@ -143,6 +161,24 @@ bash file_sh/earthquake_llama.sh
 bash file_sh/earthquake_gemma.sh
 ```
 
+### Direct Execution
+
+The training scripts can also be executed directly using configuration files.
+
+For U.S. Earthquake:
+
+```bash
+python scripts/earthquake/train_tpp_llm.py \
+    @configs/tpp_llm_ue.config
+```
+
+For NYC Taxi:
+
+```bash
+python scripts/taxi/train_tpp_llm.py \
+    @configs/tpp_llm_nt.config
+```
+
 ## Configuration
 
 Configuration files are located in `configs/`.
@@ -156,7 +192,7 @@ The `tpp_llm_nt_gemma_float.config` file is used for the Gemma Float baseline.
 
 The experiment scripts configure the numerical representation method, model settings, Semantic Alignment Loss weights, random seed, and output directories.
 
-The main AeMPP-LLM configuration uses `MLP_token_renew_loss_ph`. The implementation also supports `main`, `positional`, `linear`, and `float` baselines.
+The main AeMPP-LLM configuration uses `MLP_token_renew_loss_ph`. Other supported methods include `main`, `positional`, `linear`, and `float`.
 
 ## Evaluation
 
@@ -179,13 +215,13 @@ This project is based on TPP-LLM:
 
 ```bibtex
 @misc{liu2025tppllmmodelingtemporalpoint,
-  title        = {TPP-LLM: Modeling Temporal Point Processes by Efficiently Fine-Tuning Large Language Models},
-  author       = {Zefang Liu and Yinzhu Quan},
-  year         = {2025},
-  eprint       = {2410.02062},
+  title         = {TPP-LLM: Modeling Temporal Point Processes by Efficiently Fine-Tuning Large Language Models},
+  author        = {Zefang Liu and Yinzhu Quan},
+  year          = {2025},
+  eprint        = {2410.02062},
   archivePrefix = {arXiv},
-  primaryClass = {cs.LG},
-  url          = {https://arxiv.org/abs/2410.02062}
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2410.02062}
 }
 ```
 
