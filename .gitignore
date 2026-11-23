@@ -28,3 +28,10 @@ checkpoints/
 .DS_Store
 *.tmp
 
+10_データ収集.py
+10_データ収集_taxi.py
+
+11_開発状況1121_us_vocab.txt
+11_開発状況1123_taxi_vocab.txt
+11_開発状況1123_us_vocab.txt
+11_開発状況1123_taxi_vocab.txt
