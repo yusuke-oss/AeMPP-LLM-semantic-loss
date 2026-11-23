@@ -15,7 +15,7 @@ AeMPP-LLM integrates multiple numerical attributes of an event into a single con
 
 <div align="center">
   <img src="images/proposed_architecture.png" alt="TPP-LLM with Semantic Loss Architecture" width="1020"/>
-  <p><em>Overview of our enhanced AeMPP-LLM architecture. Continuous variables are encoded via MLPs and aligned to frozen LLM target anchors using MSE Loss.</em></p>
+  <p><em>Overview of our AeMPP-LLM architecture. Continuous variables are encoded via MLPs and aligned to frozen LLM target anchors using MSE Loss.</em></p>
 </div>
 
 ## Supported Datasets and Models
