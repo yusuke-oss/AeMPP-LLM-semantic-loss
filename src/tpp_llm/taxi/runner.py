@@ -557,7 +557,7 @@ class TPPLLMRunner(object):
         qwk = cohen_kappa_score(
             all_event_types,
             all_event_type_preds,
-            labels=[0, 1, 2],
+            labels=eval_labels,
             weights='quadratic'
         )
             
@@ -588,7 +588,7 @@ class TPPLLMRunner(object):
             seq_qwk = cohen_kappa_score(
                 true_typ,
                 pred_typ,
-                labels=[0, 1, 2],
+                labels=eval_labels,
                 weights='quadratic'
             )
             seq_qwks.append(float(seq_qwk))

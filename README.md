@@ -1,51 +1,198 @@
-# TPP-LLM-semantic-loss
+# AeMPP-LLM
 
-## Overview
+This repository provides an extended implementation of [TPP-LLM](https://arxiv.org/abs/2410.02062) for temporal event sequence prediction using Large Language Models (LLMs).
 
-This repository contains the implementation of TPP-LLM, which incorporates neural event embeddings and semantic alignment constraints into a pretrained Large Language Model (LLM) for temporal point process (TPP) modeling.
+AeMPP-LLM integrates multiple numerical attributes of an event into a single continuous event embedding using an MLP. It also supports semantic alignment constraints in the LLM's input embedding and hidden representation spaces.
 
-The proposed method represents multiple numerical attributes of an event as a single continuous event-level embedding in the pretrained LLM embedding space.
+## Features
 
-## Datasets
+- MLP-based neural event embedding for numerical attributes.
+- Semantic Alignment Loss in input and hidden representation spaces.
+- Frozen LLM and LoRA-based configurations.
+- Support for TinyLlama and Gemma.
+- Multiple numerical representation baselines.
+- Training, evaluation, and representation analysis utilities.
 
-For easy reproducibility and immediate evaluation, we provide the fully processed dataset weights on Hugging Face:
+## Supported Datasets and Models
 
-- **📊 Dataset (U.S. Earthquake)**: [Download from Hugging Face](https://huggingface.co/datasets/yusuke-oss/TPP-LLM-semantic-loss)
-You can download the dataset and place it directly into the data/us_earthquake/ directory to skip the preprocessing step. Similarly, downloading the model weights allows you to run evaluations immediately without training from scratch.
+| Dataset | Numerical attributes | Event types |
+|---|---|---:|
+| NYC Taxi | Latitude, longitude, distance | 8 |
+| U.S. Earthquake | Latitude, longitude, magnitude, depth | 3 |
 
-## Repository Structure
+| Model | Hugging Face |
+|---|---|
+| TinyLlama | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
+| Gemma | `google/gemma-2-2b-it` |
+
+## Dataset
+
+Processed datasets are available on Hugging Face:
+
+**[AeMPP-LLM-semantic-loss](https://huggingface.co/datasets/yusuke-oss/AeMPP-LLM-semantic-loss)**
+
+Download the datasets and place them in the following directories:
 
 ```text
-TPP-LLM-semantic-loss/
-├── README.md
-├── requirements.txt
-├── scripts/
-│   ├── taxi_renew_vocab2/
-│   └── us_earthquake_renew_vocab/
-├── src/
-│   └── tpp_llm/
-│       ├── taxi_renew_vocab2/
-│       └── us_earthquake_renew_vocab/
-├── configs/
-└── vocab/
+data/
+├── nyc_taxi/
+│   ├── train.json
+│   ├── dev.json
+│   └── test.json
+│
+└── us_earthquake/
+    ├── train.json
+    ├── dev.json
+    └── test.json
 ```
 
-## Requirements
+## Directory Structure
 
-The required Python packages are listed in `requirements.txt`.
+```text
+AeMPP-LLM/
+├── configs/
+│   ├── tpp_llm_nt.config
+│   ├── tpp_llm_nt_gemma.config
+│   ├── tpp_llm_nt_gemma_float.config
+│   ├── tpp_llm_ue.config
+│   └── tpp_llm_ue_gemma.config
+│
+├── file_sh/
+│   ├── earthquake_llama.sh
+│   ├── earthquake_gemma.sh
+│   ├── taxi_llama.sh
+│   └── taxi_gemma.sh
+│
+├── scripts/
+│   ├── earthquake/
+│   │   └── train_tpp_llm.py
+│   └── taxi/
+│       └── train_tpp_llm.py
+│
+├── src/
+│   └── tpp_llm/
+│       ├── earthquake/
+│       └── taxi/
+│
+├── data/
+├── result/
+├── save_model/
+└── save_weight/
+```
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd AeMPP-LLM
+```
+
+### 2. Create a virtual environment
+
+```bash
+conda create -n aempp-llm python=3.10
+conda activate aempp-llm
+```
+
+### 3. Install dependencies
+
+```bash
+pip install torch transformers peft accelerate bitsandbytes
+pip install numpy scikit-learn matplotlib tqdm
+```
+
+### 4. Set the Python path
+
+```bash
+export PYTHONPATH=$PYTHONPATH:src
+```
 
 ## Usage
 
-Training scripts are provided separately for each dataset.
+Training and evaluation can be performed using the shell scripts in `file_sh/`.
 
-### Taxi
+Before execution, check the GPU device settings in the shell scripts and modify them according to your environment.
 
-See `scripts/taxi_renew_vocab2/train_tpp_llm.py`.
+### NYC Taxi
 
-### US Earthquake
+**TinyLlama**
 
-See `scripts/us_earthquake_renew_vocab/train_tpp_llm.py`.
+```bash
+bash file_sh/taxi_llama.sh
+```
 
-## Notes
+**Gemma**
 
-The datasets and pretrained model weights are not included in this repository. Please prepare them separately before running the experiments.
+```bash
+bash file_sh/taxi_gemma.sh
+```
+
+### U.S. Earthquake
+
+**TinyLlama**
+
+```bash
+bash file_sh/earthquake_llama.sh
+```
+
+**Gemma**
+
+```bash
+bash file_sh/earthquake_gemma.sh
+```
+
+## Configuration
+
+Configuration files are located in `configs/`.
+
+| Dataset | TinyLlama | Gemma |
+|---|---|---|
+| NYC Taxi | `tpp_llm_nt.config` | `tpp_llm_nt_gemma.config` |
+| U.S. Earthquake | `tpp_llm_ue.config` | `tpp_llm_ue_gemma.config` |
+
+The `tpp_llm_nt_gemma_float.config` file is used for the Gemma Float baseline.
+
+The experiment scripts configure the numerical representation method, model settings, Semantic Alignment Loss weights, random seed, and output directories.
+
+The main AeMPP-LLM configuration uses `MLP_token_renew_loss_ph`. The implementation also supports `main`, `positional`, `linear`, and `float` baselines.
+
+## Evaluation
+
+The training scripts evaluate models on the validation and test datasets.
+
+Evaluation metrics include:
+
+- Log-likelihood
+- RMSE
+- Accuracy
+- Precision, Recall, and F1
+- Quadratic Weighted Kappa (QWK)
+- Average inference time per event
+
+Training logs, model weights, and evaluation results are saved under the configured `result/`, `save_model/`, and `save_weight/` directories.
+
+## Citation
+
+This project is based on TPP-LLM:
+
+```bibtex
+@misc{liu2025tppllmmodelingtemporalpoint,
+  title        = {TPP-LLM: Modeling Temporal Point Processes by Efficiently Fine-Tuning Large Language Models},
+  author       = {Zefang Liu and Yinzhu Quan},
+  year         = {2025},
+  eprint       = {2410.02062},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.LG},
+  url          = {https://arxiv.org/abs/2410.02062}
+}
+```
+
+## Acknowledgment
+
+We thank the authors of the original [TPP-LLM](https://github.com/zefang-liu/TPP-LLM) framework.
+
+## License
+
+See the `LICENSE` file for license information.

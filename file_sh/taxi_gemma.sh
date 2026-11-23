@@ -1,26 +1,28 @@
 
+
+
 # 乱数シードの設定
 SEEDS=(42)
-llm='llama'
+llm='gemma'
 
 WEIGHT_P_LIST=(
   0
   0.001
-  0
   0.0001
+  0
+  0
   0.001
   0.0001
-  0
 )
 
 WEIGHT_H_LIST=(
   0
   0.001
+  0.0001
   0.001
   0.0001
   0
   0
-  0.001
 )
 
 # ★ 実験セットの定義（1要素）
@@ -69,7 +71,7 @@ for seed in "${SEEDS[@]}"; do
       codebook_weight_h="${WEIGHT_H_LIST[$idx]}"
       
       # フォルダ名が被らないよう、重みの値もディレクトリ名に追加
-      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_scale_${SCALE_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}_0.1_soft_1.0_now_20_5e-4_we0.10.3"
+      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}"
 
       SUB_DIR="${TEMP_EMB_TYPE}/${FLAG_STR}/seed_${seed}"
 
@@ -111,14 +113,14 @@ for seed in "${SEEDS[@]}"; do
       echo "-------------------------------------------------------"
 
       python "scripts/${SCRIPT_DIR}/train_tpp_llm.py" \
-        @configs/tpp_llm_nt.config \
+        @configs/tpp_llm_nt_gemma.config \
         --dataset_path="${DATASET_PATH}" \
         --result_save_path="${CUR_RESULT}" \
         --model_weight_path="${CUR_MODEL_LOAD}" \
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -130,11 +132,9 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
-
-
 # 乱数シードの設定
 SEEDS=(42)
-llm='llama'
+llm='gemma'
 
 WEIGHT_P_LIST=(
   0
@@ -150,7 +150,7 @@ SAVE_NAMES=("20261123/nyc_taxi" )
 SCRIPT_DIRS=("taxi" )
 
 # --- 共通設定 ---
-TEMP_EMB_TYPES=('main')
+TEMP_EMB_TYPES=('main'  )
 FLOSEN_FLAG_SET=( false )
 USE_TOKENS_SET=( false )
 NATURAL_SEP_SET=( false )
@@ -190,7 +190,7 @@ for seed in "${SEEDS[@]}"; do
       codebook_weight_h="${WEIGHT_H_LIST[$idx]}"
       
       # フォルダ名が被らないよう、重みの値もディレクトリ名に追加
-      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_scale_${SCALE_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}_0.1_soft_1.0_now_20_5e-4_we0.10.3"
+      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}"
 
       SUB_DIR="${TEMP_EMB_TYPE}/${FLAG_STR}/seed_${seed}"
 
@@ -232,14 +232,14 @@ for seed in "${SEEDS[@]}"; do
       echo "-------------------------------------------------------"
 
       python "scripts/${SCRIPT_DIR}/train_tpp_llm.py" \
-        @configs/tpp_llm_nt.config \
+        @configs/tpp_llm_nt_gemma.config \
         --dataset_path="${DATASET_PATH}" \
         --result_save_path="${CUR_RESULT}" \
         --model_weight_path="${CUR_MODEL_LOAD}" \
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -253,7 +253,7 @@ done
 
 # 乱数シードの設定
 SEEDS=(42)
-llm='llama'
+llm='gemma'
 
 WEIGHT_P_LIST=(
   0
@@ -309,7 +309,7 @@ for seed in "${SEEDS[@]}"; do
       codebook_weight_h="${WEIGHT_H_LIST[$idx]}"
       
       # フォルダ名が被らないよう、重みの値もディレクトリ名に追加
-      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_scale_${SCALE_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}_0.1_soft_1.0_now_20_5e-4_we0.10.3"
+      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}"
 
       SUB_DIR="${TEMP_EMB_TYPE}/${FLAG_STR}/seed_${seed}"
 
@@ -351,14 +351,14 @@ for seed in "${SEEDS[@]}"; do
       echo "-------------------------------------------------------"
 
       python "scripts/${SCRIPT_DIR}/train_tpp_llm.py" \
-        @configs/tpp_llm_nt.config \
+        @configs/tpp_llm_nt_gemma.config \
         --dataset_path="${DATASET_PATH}" \
         --result_save_path="${CUR_RESULT}" \
         --model_weight_path="${CUR_MODEL_LOAD}" \
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -373,7 +373,7 @@ done
 
 # 乱数シードの設定
 SEEDS=(42)
-llm='llama'
+llm='gemma'
 
 WEIGHT_P_LIST=(
   0
@@ -429,7 +429,7 @@ for seed in "${SEEDS[@]}"; do
       codebook_weight_h="${WEIGHT_H_LIST[$idx]}"
       
       # フォルダ名が被らないよう、重みの値もディレクトリ名に追加
-      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_scale_${SCALE_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}_0.1_soft_1.0_now_20_5e-4_we0.10.3"
+      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}"
 
       SUB_DIR="${TEMP_EMB_TYPE}/${FLAG_STR}/seed_${seed}"
 
@@ -471,14 +471,14 @@ for seed in "${SEEDS[@]}"; do
       echo "-------------------------------------------------------"
 
       python "scripts/${SCRIPT_DIR}/train_tpp_llm.py" \
-        @configs/tpp_llm_nt.config \
+        @configs/tpp_llm_nt_gemma.config \
         --dataset_path="${DATASET_PATH}" \
         --result_save_path="${CUR_RESULT}" \
         --model_weight_path="${CUR_MODEL_LOAD}" \
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -490,10 +490,9 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
-
 # 乱数シードの設定
 SEEDS=(42)
-llm='llama'
+llm='gemma'
 
 WEIGHT_P_LIST=(
   0
@@ -509,10 +508,10 @@ SAVE_NAMES=("20261123/nyc_taxi" )
 SCRIPT_DIRS=("taxi" )
 
 # --- 共通設定 ---
-TEMP_EMB_TYPES=('float'  )
+TEMP_EMB_TYPES=('float')
 FLOSEN_FLAG_SET=( false )
 USE_TOKENS_SET=( true )
-NATURAL_SEP_SET=( true )
+NATURAL_SEP_SET=( false )
 EMB_FLOZEN_SET=( false )
 
 # =========================================================
@@ -549,7 +548,7 @@ for seed in "${SEEDS[@]}"; do
       codebook_weight_h="${WEIGHT_H_LIST[$idx]}"
       
       # フォルダ名が被らないよう、重みの値もディレクトリ名に追加
-      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_scale_${SCALE_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}_0.1_soft_1.0_now_20_5e-4_we0.10.3"
+      FLAG_STR="${llm}/tokens_${USE_TOKENS}_nat_${NAT_SEP}_flosen_${FLOZEN_PRE}_embflozen_${EMB_FLOZEN_PRE}_wp_${codebook_weight_p}_wh_${codebook_weight_h}"
 
       SUB_DIR="${TEMP_EMB_TYPE}/${FLAG_STR}/seed_${seed}"
 
@@ -591,14 +590,14 @@ for seed in "${SEEDS[@]}"; do
       echo "-------------------------------------------------------"
 
       python "scripts/${SCRIPT_DIR}/train_tpp_llm.py" \
-        @configs/tpp_llm_nt.config \
+        @configs/tpp_llm_nt_gemma_float.config \
         --dataset_path="${DATASET_PATH}" \
         --result_save_path="${CUR_RESULT}" \
         --model_weight_path="${CUR_MODEL_LOAD}" \
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
