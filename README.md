@@ -8,10 +8,10 @@ The proposed method represents multiple numerical attributes of an event as a si
 
 ## Datasets
 
-This repository includes implementations for the following datasets:
+For easy reproducibility and immediate evaluation, we provide the fully processed dataset weights on Hugging Face:
 
-- **Taxi**
-- **US Earthquake**
+- **📊 Dataset (U.S. Earthquake)**: [Download from Hugging Face](https://huggingface.co/datasets/yusuke-oss/TPP-LLM-semantic-loss)
+You can download the dataset and place it directly into the data/us_earthquake/ directory to skip the preprocessing step. Similarly, downloading the model weights allows you to run evaluations immediately without training from scratch.
 
 ## Repository Structure
 
