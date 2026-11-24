@@ -257,8 +257,6 @@ The following parameters are particularly relevant when configuring experiments.
 | `use_tokens` | Controls the use of numerical/event tokens |
 | `use_natural_separators` | Controls the use of natural-language separators in the prompt |
 
-The spelling `flozen_flag` follows the argument name used in the implementation.
-
 ### Numerical Representation Methods
 
 The `temporal_emb_type` parameter determines how numerical event attributes are represented.
