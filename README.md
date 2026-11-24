@@ -19,7 +19,7 @@ Two pretrained LLM backbones are supported:
 ## Architecture
 
 <p align="center">
-  <img src="images/proposed_architecture.png" alt="LLM-AeMPP Architecture" width="1020"/>
+  <img src="images/proposed_architecture.pdf" alt="LLM-AeMPP Architecture" width="1020"/>
 </p>
 
 <p align="center">
