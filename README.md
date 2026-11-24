@@ -165,7 +165,7 @@ Make sure that the installed PyTorch and CUDA versions are compatible with your 
 Add the `src/` directory to `PYTHONPATH`:
 
 ```bash
-export PYTHONPATH="${PYTHONPATH}:src"
+export PYTHONPATH=$PYTHONPATH:src
 ```
 
 ---
