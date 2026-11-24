@@ -146,7 +146,7 @@ cd AeMPP-LLM-semantic-loss
 We recommend using Conda to manage the Python environment.
 
 ```bash
-conda create -n LLM-AeMPP python=3.10
+conda create -n LLM-AeMPP python=3.13.2
 conda activate LLM-AeMPP
 ```
 
