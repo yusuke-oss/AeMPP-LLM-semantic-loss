@@ -256,7 +256,6 @@ The following parameters are particularly relevant when configuring experiments.
 | `codebook_loss_weight_h` | Weight of the hidden representation space alignment loss |
 | `use_tokens` | Controls the use of numerical/event tokens |
 | `use_natural_separators` | Controls the use of natural-language separators in the prompt |
-| `scale_flag` | Controls the corresponding scaling option |
 
 The spelling `flozen_flag` follows the argument name used in the implementation.
 
