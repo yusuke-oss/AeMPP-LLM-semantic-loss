@@ -2,7 +2,7 @@
 
 **LLM-AeMPP** is an extended implementation of [TPP-LLM](https://arxiv.org/abs/2410.02062), a framework that integrates Temporal Point Processes (TPPs) with Large Language Models (LLMs) for event sequence modeling and prediction.
 
-This project investigates how continuous numerical attributes can be effectively incorporated into the representation space of pretrained LLMs. We propose a **Neural Event Embedding** that integrates multiple numerical attributes of an event into a single continuous event-level representation.
+This project investigates how continuous numerical attributes can be incorporated into the representation space of pretrained LLMs. We propose a **Neural Event Embedding** that integrates multiple numerical attributes of an event into a single continuous event-level representation.
 
 We also introduce **Semantic Alignment Loss**, which regularizes the learned event representations using fixed semantic anchors in both the LLM input embedding space and its hidden representation space. This encourages the learned representations to remain aligned with the pretrained LLM's representation spaces.
 
@@ -80,8 +80,8 @@ Processed datasets are available on Hugging Face:
 
 | Backbone | Hugging Face model |
 |---|---|
-| TinyLlama-1.1B-Chat-v1.0 | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
-| Gemma-2-2B-it | `google/gemma-2-2b-it` |
+| TinyLlama-1.1B-Chat-v1.0 | [`TinyLlama/TinyLlama-1.1B-Chat-v1.0`](https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0) |
+| Gemma-2-2B-it | [`google/gemma-2-2b-it`](https://huggingface.co/google/gemma-2-2b-it) |
 
 The pretrained LLMs are loaded through Hugging Face Transformers.
 
@@ -89,22 +89,12 @@ The pretrained LLMs are loaded through Hugging Face Transformers.
 
 ## Directory Structure
 
-The repository is organized as follows:
+The following shows the main source-code structure of the repository:
 
 ```text
 AeMPP-LLM-semantic-loss/
-├── configs/
-│   ├── tpp_llm_nt.config
-│   ├── tpp_llm_nt_gemma.config
-│   ├── tpp_llm_nt_gemma_float.config
-│   ├── tpp_llm_ue.config
-│   └── tpp_llm_ue_gemma.config
-│
-├── file_sh/
-│   ├── earthquake_llama.sh
-│   ├── earthquake_gemma.sh
-│   ├── taxi_llama.sh
-│   └── taxi_gemma.sh
+├── images/
+│   └── proposed_architecture.png
 │
 ├── scripts/
 │   ├── earthquake/
@@ -132,18 +122,13 @@ AeMPP-LLM-semantic-loss/
 │           ├── runner.py
 │           └── utils.py
 │
-├── data/
-│   ├── nyc_taxi/
-│   └── us_earthquake/
-│
-├── result/
-├── save_model/
-├── save_weight/
 ├── requirements.txt
 └── README.md
 ```
 
-The `data/`, `result/`, `save_model/`, and `save_weight/` directories are used for datasets, experiment outputs, and saved model parameters. Their contents may be generated locally and may not be included in the Git repository.
+Configuration files, experiment scripts, datasets, and generated outputs are maintained in their respective directories.
+
+The `data/`, `result/`, `save_model/`, and `save_weight/` directories are used for datasets and experiment-related outputs. Their contents may be generated locally and may not be included in the Git repository.
 
 ---
 
@@ -191,7 +176,7 @@ Download the processed datasets from Hugging Face:
 
 **[LLM-AeMPP Dataset](https://huggingface.co/datasets/yusuke-oss/AeMPP-LLM-semantic-loss)**
 
-Place the downloaded files in the corresponding directories.
+Place the downloaded files in the corresponding dataset directories.
 
 The expected directory structure is:
 
@@ -306,14 +291,14 @@ codebook_loss_weight_h = 0.001
 
 Setting both weights to zero disables the contribution of these weighted alignment terms.
 
-The following combinations are included in the NYC Taxi experiment script provided for comparison:
+The NYC Taxi experiment script includes the following comparison:
 
 | Input-space weight | Hidden-space weight |
 |---:|---:|
 | 0 | 0 |
 | 0.001 | 0.001 |
 
-Other experiment scripts or configurations may use different weight combinations. Refer to the corresponding shell scripts for the exact settings.
+Other experiment scripts or configurations may use different weight combinations. Refer to the corresponding scripts for the exact settings.
 
 ### LLM Training Strategy
 
@@ -333,7 +318,7 @@ The fine-tuning strategy is configured through the experiment settings and shell
 
 ## Usage
 
-Training and evaluation can be launched using the shell scripts in `file_sh/`.
+Training and evaluation can be launched using the experiment scripts provided in `file_sh/`.
 
 Before running an experiment, check the GPU device specified in the script and adjust it according to your environment.
 
@@ -365,7 +350,7 @@ bash file_sh/taxi_llama.sh
 bash file_sh/taxi_gemma.sh
 ```
 
-The shell scripts automate experiments by configuring the dataset, model backbone, numerical representation method, Semantic Alignment Loss weights, and output paths.
+The shell scripts configure the dataset, model backbone, numerical representation method, Semantic Alignment Loss weights, and output paths for the experiments.
 
 ### Direct Execution
 
@@ -387,21 +372,6 @@ python scripts/taxi/train_tpp_llm.py \
 
 Additional command-line arguments can be used to override configuration values.
 
-### Training and Evaluation Flags
-
-The training scripts provide the following execution flags:
-
-| Flag | Description |
-|---|---|
-| `--save_flag` | Runs training and evaluation and saves model parameters |
-| `--train_flag` | Enables training |
-| `--load_flag` | Loads saved model parameters for evaluation |
-| `--resume_flag` | Enables the configured resume-related training behavior |
-
-The exact behavior of these flags depends on the training script and configuration. Refer to the corresponding implementation when changing execution modes.
-
-For evaluation with previously saved weights, configure the model and weight paths and use `--load_flag`.
-
 ---
 
 ## Experimental Settings
@@ -415,11 +385,38 @@ The implementation supports two pretrained LLM backbones.
 | TinyLlama-1.1B-Chat-v1.0 | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
 | Gemma-2-2B-it | `google/gemma-2-2b-it` |
 
+### Example Configuration: U.S. Earthquake with TinyLlama
+
+The following settings are taken from the `tpp_llm_ue.config` experiment configuration.
+
+| Parameter | Value |
+|---|---|
+| Model | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
+| Dataset | `data/us-earthquake` |
+| Number of event types | 3 |
+| Numerical representation | `MLP` |
+| Temporal embedding order | `temporal_emb_first` |
+| Number of integral samples | 20 |
+| Quantization | 4-bit |
+| PEFT method | LoRA |
+| LoRA rank | 16 |
+| LoRA target modules | `q_proj`, `k_proj`, `v_proj`, `o_proj` |
+| Training batch size | 8 |
+| Evaluation batch size | 16 |
+| Learning rate | 5e-4 |
+| Number of epochs | 200 |
+| Type loss weight | 0.1 |
+| Time loss weight | 1.0 |
+| Log-likelihood loss weight | 0.3 |
+| Gradient accumulation steps | 4 |
+| Device | `cuda:0` |
+| Random seed | 2024 |
+
+This configuration is an example of the U.S. Earthquake experiment. Other configurations and shell scripts may use different settings.
+
 ### Numerical Representation Baselines
 
 The main LLM-AeMPP method and the baseline methods can be selected through `temporal_emb_type`.
-
-The provided experiment scripts configure different representation methods for comparison.
 
 | Method | `temporal_emb_type` | Description |
 |---|---|---|
@@ -435,28 +432,27 @@ The input-space and hidden-space alignment weights can be adjusted independently
 
 This allows the effects of the two alignment constraints to be examined separately and jointly.
 
-For example, the NYC Taxi experiment script includes the following comparison:
+The NYC Taxi experiment script includes the following comparison:
 
 | Input-space weight | Hidden-space weight |
 |---:|---:|
 | 0 | 0 |
 | 0.001 | 0.001 |
 
-Refer to each dataset-specific shell script for the complete experimental conditions.
+Refer to each dataset-specific experiment script for the complete experimental conditions.
 
 ### Training Settings
 
-The experiment configurations and shell scripts specify the training settings, including:
+The experiment configurations and scripts specify the training settings, including:
 
 - Learning rate
 - Batch size
 - Random seed
 - Training epochs
-- Early stopping
 - LLM fine-tuning strategy
 - Output directories
 
-Modify the corresponding configuration values or shell script arguments to change the experimental settings.
+Modify the corresponding configuration values or script arguments to change the experimental settings.
 
 ---
 
@@ -483,44 +479,19 @@ The evaluation and analysis scripts provide utilities for examining prediction p
 
 ## Outputs
 
-Experiment outputs are saved under the directories specified in the configuration files and shell scripts.
+Experiment outputs are stored in the directories specified by the configuration files and experiment scripts.
 
-### Result Files
+The following parameters specify the output locations in the U.S. Earthquake example configuration:
 
-Typical result outputs may include evaluation logs, learning curves, and visualization plots.
+| Parameter | Path |
+|---|---|
+| `result_save_path` | `result/us_earthquake_semantic_loss` |
+| `model_weight_path` | `save_model/us_earthquake_semantic_loss` |
+| `weight_path` | `save_weight/us_earthquake_semantic_loss` |
 
-For example:
+The actual files and directory contents depend on the experiment settings and the save operations performed by the implementation.
 
-```text
-result/
-└── <experiment_name>/
-    ├── val.txt
-    ├── test.txt
-    ├── curve_loss.png
-    ├── curve_log_likelihood.png
-    ├── curve_f1.png
-    ├── curve_qwk.png
-    ├── curve_rmse.png
-    ├── curve_accuracy.png
-    ├── curve_type_loss.png
-    ├── curve_time_loss.png
-    └── curve_nll_loss.png
-```
-
-The exact files depend on the selected experiment and analysis settings.
-
-### Saved Models and Weights
-
-Model-related files are saved under the configured `save_model/` and `save_weight/` directories.
-
-Depending on the configuration, saved artifacts may include:
-
-- LLM or LoRA-related model parameters
-- Tokenizer files
-- TPP prediction head parameters
-- Training checkpoint information
-
-The analysis utilities can also be used to examine learned event representations and their relationships with semantic anchors.
+The repository also includes analysis utilities for examining learned event representations and their relationships with semantic anchors.
 
 ---
 
