@@ -93,6 +93,19 @@ The following shows the main source-code structure of the repository:
 
 ```text
 AeMPP-LLM-semantic-loss/
+├── configs/
+│   ├── tpp_llm_nt.config
+│   ├── tpp_llm_nt_gemma.config
+│   ├── tpp_llm_nt_gemma_float.config
+│   ├── tpp_llm_ue.config
+│   └── tpp_llm_ue_gemma.config
+│
+├── file_sh/
+│   ├── earthquake_llama.sh
+│   ├── earthquake_gemma.sh
+│   ├── taxi_llama.sh
+│   └── taxi_gemma.sh
+│
 ├── images/
 │   └── proposed_architecture.png
 │
