@@ -392,7 +392,7 @@ The following settings are taken from the `tpp_llm_ue.config` experiment configu
 | Model | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
 | Dataset | `data/us-earthquake` |
 | Number of event types | 3 |
-| Numerical representation | `MLP` |
+| Numerical representation | `main` |
 | Temporal embedding order | `temporal_emb_first` |
 | Number of integral samples | 20 |
 | Quantization | 4-bit |
