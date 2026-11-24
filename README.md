@@ -2,19 +2,29 @@
 
 **LLM-AeMPP** is an extended implementation of [TPP-LLM](https://arxiv.org/abs/2410.02062), a framework that integrates Temporal Point Processes (TPPs) with Large Language Models (LLMs) for event sequence modeling and prediction.
 
-This project investigates how continuous numerical attributes can be effectively embedded into the representation space of a pretrained LLM. We propose a neural event embedding that integrates multiple numerical attributes of an event into a single continuous representation, together with **Semantic Alignment Loss** to encourage consistency with the pretrained LLM's representation spaces.
+This project investigates how continuous numerical attributes can be effectively incorporated into the representation space of pretrained LLMs. We propose a **Neural Event Embedding** that integrates multiple numerical attributes of an event into a single continuous event-level representation.
+
+We also introduce **Semantic Alignment Loss**, which regularizes the learned event representations using fixed semantic anchors in both the LLM input embedding space and its hidden representation space. This encourages the learned representations to remain aligned with the pretrained LLM's representation spaces.
 
 The framework is evaluated on two datasets:
 
 - **NYC Taxi:** Latitude, longitude, and trip distance.
 - **U.S. Earthquake:** Latitude, longitude, magnitude, and depth.
 
-Two pretrained LLM backbones are supported: TinyLlama-1.1B-Chat-v1.0 and Gemma-2-2B-it.
+Two pretrained LLM backbones are supported:
 
-<div align="center">
+- TinyLlama-1.1B-Chat-v1.0
+- Gemma-2-2B-it
+
+## Architecture
+
+<p align="center">
   <img src="images/proposed_architecture.png" alt="LLM-AeMPP Architecture" width="1020"/>
-  <p><em>Overview of our LLM-AeMPP architecture. Continuous variables are encoded via MLPs and aligned to frozen LLM target anchors using MSE loss.</em></p>
-</div>
+</p>
+
+<p align="center">
+  <em>Overview of LLM-AeMPP. Multiple numerical attributes are integrated into a unified event-level representation by a neural event embedding module. Semantic Alignment Loss regularizes the learned representations using fixed semantic anchors in the input embedding space and the LLM hidden representation space.</em>
+</p>
 
 ## Table of Contents
 
@@ -36,13 +46,18 @@ Two pretrained LLM backbones are supported: TinyLlama-1.1B-Chat-v1.0 and Gemma-2
 
 ## Features and Contributions
 
+### Method
+
 - **Neural Event Embedding:** Integrates multiple numerical attributes of an event into a single continuous event-level representation using an MLP.
-- **Semantic Alignment Loss:** Introduces two alignment constraints in the input embedding space and the LLM hidden representation space.
-- **Frozen LLM Training:** Supports training the event embedding module and TPP prediction heads while keeping the pretrained LLM frozen.
-- **Multiple Numerical Representation Baselines:** Supports MLP-based, positional, linear, and byte-token-based numerical representations.
+- **Semantic Alignment Loss:** Introduces two alignment constraints that regularize event representations in the input embedding space and the LLM hidden representation space.
+- **Frozen LLM Adaptation:** Enables temporal point process modeling by training the event embedding module and TPP prediction heads while keeping the pretrained LLM backbone frozen.
+
+### Implementation
+
+- **Multiple Numerical Representation Methods:** Supports MLP-based, positional, linear, and byte-token-based numerical representations.
 - **Multiple LLM Backbones:** Supports TinyLlama-1.1B-Chat-v1.0 and Gemma-2-2B-it.
-- **Comprehensive Evaluation:** Reports temporal prediction and event-type classification metrics, along with inference time.
-- **Representation Analysis:** Includes utilities for examining learned event representations and their relationships with semantic anchors.
+- **Comprehensive Evaluation:** Provides metrics for temporal prediction and event-type classification, as well as inference time.
+- **Representation Analysis:** Includes utilities for visualizing and analyzing learned event representations and their relationships with semantic anchors.
 
 ---
 
@@ -55,7 +70,7 @@ Two pretrained LLM backbones are supported: TinyLlama-1.1B-Chat-v1.0 and Gemma-2
 | NYC Taxi | Latitude, longitude, trip distance | 8 |
 | U.S. Earthquake | Latitude, longitude, magnitude, depth | 3 |
 
-For the U.S. Earthquake dataset, events are categorized into three classes: Large, Medium, and Small.
+The U.S. Earthquake dataset contains three event types: Large, Medium, and Small.
 
 Processed datasets are available on Hugging Face:
 
@@ -65,8 +80,8 @@ Processed datasets are available on Hugging Face:
 
 | Backbone | Hugging Face model |
 |---|---|
-| TinyLlama | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
-| Gemma | `google/gemma-2-2b-it` |
+| TinyLlama-1.1B-Chat-v1.0 | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
+| Gemma-2-2B-it | `google/gemma-2-2b-it` |
 
 The pretrained LLMs are loaded through Hugging Face Transformers.
 
@@ -128,6 +143,8 @@ AeMPP-LLM-semantic-loss/
 └── README.md
 ```
 
+The `data/`, `result/`, `save_model/`, and `save_weight/` directories are used for datasets, experiment outputs, and saved model parameters. Their contents may be generated locally and may not be included in the Git repository.
+
 ---
 
 ## Installation
@@ -150,7 +167,7 @@ conda activate LLM-AeMPP
 
 ### 3. Install dependencies
 
-Install the required packages with the versions specified in `requirements.txt`.
+Install the required packages:
 
 ```bash
 pip install -r requirements.txt
@@ -160,10 +177,10 @@ Make sure that the installed PyTorch and CUDA versions are compatible with your 
 
 ### 4. Set the Python path
 
-Add the `src` directory to `PYTHONPATH`:
+Add the `src/` directory to `PYTHONPATH`:
 
 ```bash
-export PYTHONPATH=$PYTHONPATH:src
+export PYTHONPATH="${PYTHONPATH}:src"
 ```
 
 ---
@@ -172,11 +189,11 @@ export PYTHONPATH=$PYTHONPATH:src
 
 Download the processed datasets from Hugging Face:
 
-**[AeMPP-LLM-semantic-loss Dataset](https://huggingface.co/datasets/yusuke-oss/AeMPP-LLM-semantic-loss)**
+**[LLM-AeMPP Dataset](https://huggingface.co/datasets/yusuke-oss/AeMPP-LLM-semantic-loss)**
 
-Place the dataset files in the corresponding directories.
+Place the downloaded files in the corresponding directories.
 
-Expected directory structure:
+The expected directory structure is:
 
 ```text
 data/
@@ -199,17 +216,15 @@ Each dataset directory should contain:
 
 ### Numerical Data Standardization
 
-Numerical statistics are calculated using the training split and used to standardize numerical attributes during training and evaluation.
+Numerical statistics are calculated from the training split and used to standardize numerical attributes during training and evaluation. This avoids using validation or test data to calculate the normalization statistics.
 
-This prevents validation and test data from being used to calculate normalization statistics.
-
-For the `float` representation mode, standardized Float32 values are converted into four byte tokens. This representation is used as a baseline and is distinct from the MLP-based event embedding.
+For the `float` representation mode, standardized Float32 values are represented using four byte tokens. This serves as a numerical representation baseline and is distinct from the proposed MLP-based event embedding.
 
 ---
 
 ## Configuration
 
-Configuration files are located in `configs/`. Each file specifies the dataset, pretrained LLM, model settings, and experiment parameters.
+Configuration files are located in `configs/`. Each configuration specifies the dataset, pretrained LLM, model settings, and experiment parameters.
 
 ### Configuration Files
 
@@ -220,11 +235,11 @@ Choose a configuration file according to the dataset and pretrained LLM.
 | NYC Taxi | `tpp_llm_nt.config` | `tpp_llm_nt_gemma.config` |
 | U.S. Earthquake | `tpp_llm_ue.config` | `tpp_llm_ue_gemma.config` |
 
-The additional `tpp_llm_nt_gemma_float.config` configuration is used for the Gemma Float baseline.
+The additional `tpp_llm_nt_gemma_float.config` configuration is provided for the Gemma Float baseline.
 
 ### Selecting a Configuration
 
-For example, to run the main LLM-AeMPP experiment on the U.S. Earthquake dataset using TinyLlama, use:
+For example, to run an experiment on the U.S. Earthquake dataset using TinyLlama:
 
 ```bash
 python scripts/earthquake/train_tpp_llm.py \
@@ -240,7 +255,7 @@ python scripts/taxi/train_tpp_llm.py \
 
 ### Important Configuration Parameters
 
-The following settings are particularly relevant when configuring experiments.
+The following parameters are particularly relevant when configuring experiments.
 
 | Parameter | Description |
 |---|---|
@@ -253,18 +268,18 @@ The following settings are particularly relevant when configuring experiments.
 | `use_natural_separators` | Controls the use of natural-language separators in the prompt |
 | `scale_flag` | Controls the corresponding scaling option |
 
-The model backbone is selected through the corresponding configuration. The provided TinyLlama and Gemma config files are already separated by dataset and model.
+The spelling `flozen_flag` follows the argument name used in the implementation.
 
-### Numerical Representation Method
+### Numerical Representation Methods
 
-The `temporal_emb_type` setting determines how numerical event attributes are represented.
+The `temporal_emb_type` parameter determines how numerical event attributes are represented.
 
 | Method | Description |
 |---|---|
 | `MLP_token_renew_loss_ph` | MLP-based event embedding with input-space and hidden-space Semantic Alignment Loss |
-| `main` | Baseline using temporal information and textual event descriptions |
-| `positional` | Numerical representation using temporal positional encoding |
-| `linear` | Numerical representation using independent linear embedding layers |
+| `main` | TPP-LLM baseline representation |
+| `positional` | Numerical representation using positional encoding |
+| `linear` | Numerical representation using linear embedding layers |
 | `float` | Numerical representation using byte tokens |
 
 The main LLM-AeMPP experiments use:
@@ -273,7 +288,7 @@ The main LLM-AeMPP experiments use:
 temporal_emb_type = MLP_token_renew_loss_ph
 ```
 
-Use the corresponding baseline method when comparing alternative numerical representations.
+Select the corresponding baseline method when comparing alternative numerical representations.
 
 ### Semantic Alignment Loss Weights
 
@@ -289,19 +304,16 @@ codebook_loss_weight_p = 0.001
 codebook_loss_weight_h = 0.001
 ```
 
-To examine each constraint independently, set the other weight to zero.
+Setting both weights to zero disables the contribution of these weighted alignment terms.
 
-The experiments include the following combinations:
+The following combinations are included in the NYC Taxi experiment script provided for comparison:
 
 | Input-space weight | Hidden-space weight |
 |---:|---:|
 | 0 | 0 |
 | 0.001 | 0.001 |
-| 0.0001 | 0.0001 |
-| 0 | 0.001 |
-| 0 | 0.0001 |
-| 0.001 | 0 |
-| 0.0001 | 0 |
+
+Other experiment scripts or configurations may use different weight combinations. Refer to the corresponding shell scripts for the exact settings.
 
 ### LLM Training Strategy
 
@@ -309,13 +321,13 @@ The implementation supports frozen LLM and LoRA-based configurations.
 
 **Frozen LLM**
 
-In the main LLM-AeMPP experiments, the pretrained LLM is frozen. The event embedding module and TPP prediction heads are trained while preserving the pretrained LLM parameters.
+In the main LLM-AeMPP experiments, the pretrained LLM backbone is frozen. The event embedding module and TPP prediction heads are trained while preserving the pretrained LLM parameters.
 
 **LoRA Fine-tuning**
 
-LoRA is supported for baseline configurations to adapt the pretrained LLM using low-rank trainable parameters.
+LoRA-based configurations are also supported for experiments that adapt the pretrained LLM using low-rank trainable parameters.
 
-The experiment scripts configure the fine-tuning strategy according to the selected method.
+The fine-tuning strategy is configured through the experiment settings and shell scripts.
 
 ---
 
@@ -353,7 +365,7 @@ bash file_sh/taxi_llama.sh
 bash file_sh/taxi_gemma.sh
 ```
 
-The shell scripts automate experiments by setting the dataset, model configuration, numerical representation method, Semantic Alignment Loss weights, and output paths.
+The shell scripts automate experiments by configuring the dataset, model backbone, numerical representation method, Semantic Alignment Loss weights, and output paths.
 
 ### Direct Execution
 
@@ -386,7 +398,7 @@ The training scripts provide the following execution flags:
 | `--load_flag` | Loads saved model parameters for evaluation |
 | `--resume_flag` | Enables the configured resume-related training behavior |
 
-The training runner executes the training loop when either `save_flag` or `train_flag` is enabled.
+The exact behavior of these flags depends on the training script and configuration. Refer to the corresponding implementation when changing execution modes.
 
 For evaluation with previously saved weights, configure the model and weight paths and use `--load_flag`.
 
@@ -403,17 +415,34 @@ The implementation supports two pretrained LLM backbones.
 | TinyLlama-1.1B-Chat-v1.0 | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` |
 | Gemma-2-2B-it | `google/gemma-2-2b-it` |
 
-### Numerical Representation Methods
+### Numerical Representation Baselines
 
 The main LLM-AeMPP method and the baseline methods can be selected through `temporal_emb_type`.
 
-The provided shell scripts run multiple representation methods and alignment weight combinations for comparison.
+The provided experiment scripts configure different representation methods for comparison.
+
+| Method | `temporal_emb_type` | Description |
+|---|---|---|
+| TPP-LLM | `main` | Original TPP-LLM representation |
+| TPP-LLM+NL | `positional` | Positional numerical representation with natural-language separators |
+| TPP-LLM+Linear+NL | `linear` | Linear numerical representation with natural-language separators |
+| Language-TPP | `float` | Float32 numerical values represented using byte tokens |
+| LLM-AeMPP | `MLP_token_renew_loss_ph` | Proposed neural event embedding with Semantic Alignment Loss |
 
 ### Semantic Alignment Loss
 
 The input-space and hidden-space alignment weights can be adjusted independently.
 
 This allows the effects of the two alignment constraints to be examined separately and jointly.
+
+For example, the NYC Taxi experiment script includes the following comparison:
+
+| Input-space weight | Hidden-space weight |
+|---:|---:|
+| 0 | 0 |
+| 0.001 | 0.001 |
+
+Refer to each dataset-specific shell script for the complete experimental conditions.
 
 ### Training Settings
 
@@ -435,20 +464,20 @@ Modify the corresponding configuration values or shell script arguments to chang
 
 The models are evaluated on the validation and test datasets.
 
-The following metrics are reported:
+The following metrics are used to evaluate temporal prediction and event-type classification.
 
 | Metric | Description | Direction |
 |---|---|---|
-| Log-likelihood | Temporal point process likelihood | Higher is better |
+| Log-likelihood | Temporal point process log-likelihood | Higher is better |
 | RMSE | Root Mean Squared Error for event-time prediction | Lower is better |
 | Accuracy | Event-type prediction accuracy | Higher is better |
-| Precision | Macro-averaged precision | Higher is better |
-| Recall | Macro-averaged recall | Higher is better |
-| F1 | Macro-averaged F1 score | Higher is better |
+| Precision | Precision for event-type prediction | Higher is better |
+| Recall | Recall for event-type prediction | Higher is better |
+| F1 | F1 score for event-type prediction | Higher is better |
 | QWK | Quadratic Weighted Kappa | Higher is better |
 | Inference time | Average inference time per event (ms) | Lower is better |
 
-Early stopping is applied based on validation loss, with a patience of 10 epochs.
+The evaluation and analysis scripts provide utilities for examining prediction performance and comparing experimental results.
 
 ---
 
@@ -458,7 +487,9 @@ Experiment outputs are saved under the directories specified in the configuratio
 
 ### Result Files
 
-Typical result files include:
+Typical result outputs may include evaluation logs, learning curves, and visualization plots.
+
+For example:
 
 ```text
 result/
@@ -476,18 +507,20 @@ result/
     └── curve_nll_loss.png
 ```
 
+The exact files depend on the selected experiment and analysis settings.
+
 ### Saved Models and Weights
 
 Model-related files are saved under the configured `save_model/` and `save_weight/` directories.
 
-Depending on the configuration, saved artifacts include:
+Depending on the configuration, saved artifacts may include:
 
-- Pretrained LLM model or LoRA adapter parameters
+- LLM or LoRA-related model parameters
 - Tokenizer files
 - TPP prediction head parameters
 - Training checkpoint information
 
-The evaluation and analysis utilities can be used to examine prediction performance and learned event representations.
+The analysis utilities can also be used to examine learned event representations and their relationships with semantic anchors.
 
 ---
 

@@ -1,3 +1,4 @@
+#(1)AeMPP
 
 # 乱数シードの設定
 SEEDS=(42)
@@ -6,21 +7,13 @@ llm='llama'
 WEIGHT_P_LIST=(
   0
   0.001
-  0.0001
-  0
-  0
-  0.001
-  0.0001
+
 )
 
 WEIGHT_H_LIST=(
   0
   0.001
-  0.0001
-  0.001
-  0.0001
-  0
-  0
+  
 )
 
 # ★ 実験セットの定義（1要素）
@@ -131,6 +124,7 @@ done
 
 
 
+#(2)TPP-LLM
 
 # 乱数シードの設定
 SEEDS=(42)
@@ -250,6 +244,7 @@ for seed in "${SEEDS[@]}"; do
   done
 done
 
+#(2)TPP-LLM+NL
 
 # 乱数シードの設定
 SEEDS=(42)
@@ -370,7 +365,7 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
-
+#(2)TPP-LLM+Linear+NL
 # 乱数シードの設定
 SEEDS=(42)
 llm='llama'
@@ -490,7 +485,7 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
-
+#(2)Language-TPP
 # 乱数シードの設定
 SEEDS=(42)
 llm='llama'
