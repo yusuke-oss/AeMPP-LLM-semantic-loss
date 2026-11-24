@@ -409,7 +409,7 @@ The following settings are taken from the `tpp_llm_ue.config` experiment configu
 | Device | `cuda:0` |
 | Random seed | 2024 |
 
-**Note:** This table describes the settings in the example configuration file. The `MLP` representation specified here is distinct from the proposed `MLP_token_renew_loss_ph` method. Other configurations and shell scripts may use different settings.
+**Note:** This table describes the settings in the example configuration file. The `main` representation specified here is distinct from the proposed `MLP_token_renew_loss_ph` method. Other configurations and shell scripts may use different settings.
 
 ### Experimental Comparisons
 
