@@ -244,7 +244,7 @@ for seed in "${SEEDS[@]}"; do
   done
 done
 
-#(2)TPP-LLM+NL
+#(3)TPP-LLM+NL
 
 # 乱数シードの設定
 SEEDS=(42)
@@ -365,7 +365,7 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
-#(2)TPP-LLM+Linear+NL
+#(4)TPP-LLM+Linear+NL
 # 乱数シードの設定
 SEEDS=(42)
 llm='llama'
@@ -485,7 +485,7 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
-#(2)Language-TPP
+#(5)Language-TPP
 # 乱数シードの設定
 SEEDS=(42)
 llm='llama'

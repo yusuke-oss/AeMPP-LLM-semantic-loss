@@ -1,4 +1,4 @@
-
+#(1)AeMPP
 # 乱数シードの設定
 SEEDS=(42)
 llm='gemma'
@@ -119,7 +119,7 @@ for seed in "${SEEDS[@]}"; do
   done
 done
 
-
+#(2)TPP-LLM
 
 # 乱数シードの設定
 SEEDS=(42)
@@ -238,6 +238,7 @@ for seed in "${SEEDS[@]}"; do
 done
 
 
+#(3)TPP-LLM+NL
 # 乱数シードの設定
 SEEDS=(42)
 llm='gemma'
@@ -354,7 +355,7 @@ for seed in "${SEEDS[@]}"; do
   done
 done
 
-
+#(4)TPP-LLM+Linear+NL
 # 乱数シードの設定
 SEEDS=(42)
 llm='gemma'
@@ -471,7 +472,7 @@ for seed in "${SEEDS[@]}"; do
   done
 done
 
-
+#(5)Language-TPP
 # 乱数シードの設定
 SEEDS=(42)
 llm='gemma'
