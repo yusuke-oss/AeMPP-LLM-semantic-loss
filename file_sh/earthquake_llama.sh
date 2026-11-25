@@ -108,7 +108,7 @@ for seed in "${SEEDS[@]}"; do
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -227,7 +227,7 @@ for seed in "${SEEDS[@]}"; do
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -345,7 +345,7 @@ for seed in "${SEEDS[@]}"; do
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -462,7 +462,7 @@ for seed in "${SEEDS[@]}"; do
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
@@ -579,7 +579,7 @@ for seed in "${SEEDS[@]}"; do
         --weight_path="${CUR_WEIGHT}" \
         --seed="${seed}" \
         --temporal_emb_type="${TEMP_EMB_TYPE}" \
-        --device=cuda:1 \
+        --device=cuda:0 \
         --codebook_loss_weight_p="${codebook_weight_p}" \
         --codebook_loss_weight_h="${codebook_weight_h}" \
         $TOKENS_CMD $FLOZEN_CMD $EMB_FLOZEN_CMD 
