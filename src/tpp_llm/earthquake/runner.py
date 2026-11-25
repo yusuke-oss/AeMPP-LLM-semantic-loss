@@ -665,7 +665,6 @@ class TPPLLMRunner(object):
         """
         # Calculate steps considering accumulation
         self.num_train_epochs = num_train_epochs
-        print(gradient_accumulation_steps)
         steps_per_epoch = len(dataloader_train) // gradient_accumulation_steps
         self.num_training_steps = self.num_train_epochs * steps_per_epoch
         self.num_warmup_steps = int(warmup_ratio * self.num_training_steps)
