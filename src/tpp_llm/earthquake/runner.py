@@ -44,9 +44,6 @@ class TPPLLMRunner(object):
         self.beta_type = beta_type
         self.beta_time = beta_time
         self.beta_ll=beta_ll
-        print(beta_ll)
-        print(beta_type)
-        print(beta_time)
         self.device = torch.device(device)
 
         self.num_train_epochs = 0
