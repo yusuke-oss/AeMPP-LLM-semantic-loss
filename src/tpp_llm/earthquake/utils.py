@@ -10,11 +10,7 @@ def get_prompt(
         "us_earthquake": "You are given a sequence of earthquake events recorded in the United States.",
     }
 
-    # Modified: Dynamically change prompt descriptions for TPE and MLP
-    if temporal_emb_type == 'positional':
-        event_description = "Each event in the sequence lists the timestamp followed by the magnitude classification (large or medium or small), the magnitude value, the depth value, the latitude value, and the longitude value."
-    
-    elif temporal_emb_type in ['MLP_token_renew_vocab_topk_loss_ph','MLP_token_renew_vocab_loss_ph_scaled','MLP_fusion_renew','MLP_token_renew_loss','MLP_token_renew_loss_p','MLP_token_renew_loss_h','MLP_token_renew_loss_ph','MLP_token_renew_topk_loss_p', 'MLP_token_renew_topk_loss_h', 'MLP_token_renew_topk_loss_ph','MLP_token_renew_vocab_loss_ph']:
+    if temporal_emb_type in ['MLP_token_renew_vocab_topk_loss_ph','MLP_token_renew_vocab_loss_ph_scaled','MLP_fusion_renew','MLP_token_renew_loss','MLP_token_renew_loss_p','MLP_token_renew_loss_h','MLP_token_renew_loss_ph','MLP_token_renew_topk_loss_p', 'MLP_token_renew_topk_loss_h', 'MLP_token_renew_topk_loss_ph','MLP_token_renew_vocab_loss_ph']:
         event_description = "Each event is represented by a single event token obtained by compressing its timestamp, magnitude, depth, latitude, longitude, and event-type information through an MLP."
     elif temporal_emb_type in ['MLP_token_renew_loss_ph_label']:
         event_description = "Each event in the sequence is represented by the integrated value of timestamp, magnitude, depth, latitude, and longitude through a trainable MLP, followed by the event-type information (large, medium, or small)."

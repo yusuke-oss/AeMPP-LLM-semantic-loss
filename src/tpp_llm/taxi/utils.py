@@ -13,17 +13,15 @@ def get_prompt(
     # ====================================================================
     # 1. Positional Encoding の場合（特殊トークンの説明を省いたクリーンな文章）
     # ====================================================================
-    if temporal_emb_type == 'positional':
-        event_description = "Each event in the sequence lists the timestamp followed by the pick-up or drop-off location, the latitude value, the longitude value, and the distance value."
-           
-    elif temporal_emb_type in['MLP_token_renew_vocab_topk_loss_ph','MLP_token_renew_vocab_loss_ph_scaled','MLP_token_renew_topk_loss_ph', 'MLP_fusion_renew','MLP_token_renew_loss','MLP_token_renew_loss_p','MLP_token_renew_loss_h','MLP_token_renew_loss_ph','MLP_token_renew_topk_loss_p', 'MLP_token_renew_topk_loss_h', 'MLP_token_renew_topk_loss_ph','MLP_token_renew_vocab_loss_ph']:
+    
+    if temporal_emb_type in['MLP_token_renew_vocab_topk_loss_ph','MLP_token_renew_vocab_loss_ph_scaled','MLP_token_renew_topk_loss_ph', 'MLP_fusion_renew','MLP_token_renew_loss','MLP_token_renew_loss_p','MLP_token_renew_loss_h','MLP_token_renew_loss_ph','MLP_token_renew_topk_loss_p', 'MLP_token_renew_topk_loss_h', 'MLP_token_renew_topk_loss_ph','MLP_token_renew_vocab_loss_ph']:
         event_description = "Each event is represented by a single event token obtained by compressing its timestamp, latitude, longitude, distance, and event-type information through an MLP."
     #Each event in the sequence lists the integrated value of timestamp, latitude, longitude, distance, and event type by a trainable MLP.
 
     elif temporal_emb_type == 'main':
         event_description = "Each event in the sequence lists the timestamp followed by the pick-up or drop-off location."
 
-    elif temporal_emb_type == 'float':
+    else:
         if use_natural_separators == True:
             event_description = "Each event in the sequence lists the timestamp followed by the pick-up or drop-off location, the latitude value, the longitude value, and the distance value."
         else:
