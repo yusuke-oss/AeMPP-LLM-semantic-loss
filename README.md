@@ -264,6 +264,8 @@ The `temporal_emb_type` parameter determines how numerical event attributes are 
 | Method | Description |
 |---|---|
 | `MLP_token_renew_loss_ph` | MLP-based event embedding with input-space and hidden-space Semantic Alignment Loss |
+| `MLP_token_renew_loss_ph_label` | MLP-based event embedding with categorical information provided as text |
+| `MLP_token_renew_topk_loss_ph` | MLP-based event embedding with Top-5 semantic alignment |
 | `main` | TPP-LLM baseline representation |
 | `positional` | Numerical representation using positional encoding |
 | `linear` | Numerical representation using linear embedding layers |

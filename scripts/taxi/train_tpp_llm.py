@@ -40,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--num_event_types', type=int, required=True, help='number of event types')
     parser.add_argument(
-        '--temporal_emb_type', type=str, default='positional', choices=['MLP_token_renew_loss_ph_label','MLP_token_renew_vocab_topk_loss_ph_list','MLP_token_renew_vocab_topk_loss_ph','positional', 'MLP', 'linear', 'MLP_re', 'mlp_one', 'MLP_add', 'MLP_mul', 'mlp_one_add', 'mlp_one_mul','float','MLP_fusion','main','MLP_fusion_renew','MLP_token_renew_loss','MLP_token_renew_loss_p','MLP_token_renew_loss_h','MLP_token_renew_loss_ph','MLP_token_renew_topk_loss_p', 'MLP_token_renew_topk_loss_h', 'MLP_token_renew_topk_loss_ph','MLP_token_renew_vocab_loss_ph'],
+        '--temporal_emb_type', type=str, default='positional', choices=['MLP_token_renew_loss_ph_label','positional', 'linear', 'float','main','MLP_token_renew_loss_ph', 'MLP_token_renew_topk_loss_ph'],
         help='temporal embedding type')
     parser.add_argument(
         '--temporal_emb_first', action='store_true', help='temporal embedding first or not')
