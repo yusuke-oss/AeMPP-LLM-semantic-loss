@@ -102,15 +102,7 @@ class TPPLLMRunner(object):
         if phase == 'train':
             self.model.train()
 
-            
-
-            # ========== 変更後 ==========
-            # 🌟 13個の値を受け取る
-            #batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h = self.model.compute_loss(batch)
             batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h, raw_cb_p, raw_cb_h ,temp_embs_for_loss,batch_hidden_states= self.model.compute_loss(batch)
-            # Lossの計算をシンプルに
-            #batch_loss = torch.sum(
-            #    batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses)
             # 1. 基本のタスク損失（系列ごとの配列）
             base_losses = self.beta_ll*batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
             batch_type_loss = torch.sum(batch_type_losses)
@@ -169,19 +161,8 @@ class TPPLLMRunner(object):
 
             # ========== 変更後 ==========
             with torch.no_grad():
-                # 🌟 compute_loss 1回で「Loss」も「予測結果」も一気に取得する！
-                # 🌟 13個の値を受け取る
-                #batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h = self.model.compute_loss(batch)
                 batch_event_nums, batch_nll_losses, batch_type_losses, batch_time_losses, batch_next_event_types, batch_next_event_times, codebook_losses, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h, raw_cb_p, raw_cb_h ,temp_embs_for_loss,batch_hidden_states= self.model.compute_loss(batch)
-                #batch_loss = torch.sum(batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses).float().cpu().item()
-                # 2. 🌟 学習時と同様に codebook_losses があれば重みをかけて加算する
-                # 1. 基本のタスク損失を計算
-                #base_losses = batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
-                #if codebook_losses is not None:
-                #    total_losses = base_losses + self.model.codebook_loss_weight * codebook_losses
-                #else:
-                #    total_losses = base_losses
-
+                
                 base_losses =self.beta_ll* batch_nll_losses + self.beta_type * batch_type_losses + self.beta_time * batch_time_losses
 
                 # シーケンス全体の合計を出してスカラーに変換
@@ -191,14 +172,6 @@ class TPPLLMRunner(object):
                 batch_nll_loss = torch.sum(batch_nll_losses).float().cpu().item()
                 
                 batch_log_likelihoods = -batch_nll_losses
-                
-                # 3. シーケンス全体の合計を出してスカラーに変換
-                #batch_loss = torch.sum(total_losses).float().cpu().item()
-                #batch_log_likelihoods = -batch_nll_losses
-            
-            # Predict next events
-            #batch_event_nums, batch_log_likelihoods, batch_next_event_types, batch_next_event_times = \
-            #    self.model.predict_next_events(batch)
 
             # Shift and convert tensors
             batch_event_nums = batch_event_nums.numpy(force=True)
@@ -226,11 +199,11 @@ class TPPLLMRunner(object):
 
         total_log_likelihood = 0
         total_num_events = 0
-        total_val_loss = 0.0  # 🌟 ここに追加 (total_semantic_loss は消す)
+        total_val_loss = 0.0  
         total_train_loss = 0.0  # 🌟 追加 (Train時のLoss集計用)
-        total_val_type_loss = 0.0  # 🌟 ここに追加 (total_semantic_loss は消す)
-        total_val_time_loss = 0.0  # 🌟 ここに追加 (total_semantic_loss は消す)
-        total_val_nll_loss = 0.0  # 🌟 ここに追加 (total_semantic_loss は消す)
+        total_val_type_loss = 0.0 
+        total_val_time_loss = 0.0  
+        total_val_nll_loss = 0.0  
         total_train_type_loss = 0.0  # 🌟 追加 (Train時のLoss集計用)
         total_train_time_loss = 0.0  # 🌟 追加 (Train時のLoss集計用)
         total_train_nll_loss = 0.0  # 🌟 追加 (Train時のLoss集計用)
@@ -268,11 +241,6 @@ class TPPLLMRunner(object):
             # ⭕️ 追加: evalフェーズのみ時間計測を開始
             
             start_inf_time = time.time()
-            
-            # 🌟 14個の値を受け取る
-            #event_nums, log_likelihoods, event_types, event_type_preds, event_times, \
-            #event_time_preds, event_time_deltas, batch_loss_tensor, batch_words_p, batch_words_h, batch_distination_p, batch_distination_h, batch_dist_eq_p, batch_dist_eq_h = \
-            #self.run_batch(batch=batch, phase=phase)
 
             # 🌟 16個の値を受け取る
             event_nums, log_likelihoods, event_types, event_type_preds, event_times, \
@@ -290,7 +258,6 @@ class TPPLLMRunner(object):
 
             # ⭕️ 追加: 1バッチの推論が終わったら時間を足す
             if phase == 'eval':
-                #total_inference_time += (time.time() - start_inf_time)
                 total_val_loss += batch_loss_tensor # 🌟 追加 (Val_lossの集計)
                 total_val_type_loss += batch_type_loss # 🌟 追加 (Val_lossの集計)
                 total_val_time_loss += batch_time_loss # 🌟 追加 (Val_lossの集計)
@@ -301,10 +268,6 @@ class TPPLLMRunner(object):
                 time_per_event_ms = (batch_inf_time / batch_events) * 1000
                 # バッチ内の系列すべてに、この平均処理時間を記録
                 all_inf_times.append(time_per_event_ms)
-                
-            
-            #total_log_likelihood += np.sum(log_likelihoods)
-            #total_num_events += np.sum(event_nums)
 
             # 変更後
             total_log_likelihood += np.sum(log_likelihoods)
@@ -561,35 +524,7 @@ class TPPLLMRunner(object):
 
                         'hidden_vector': hidden_vector,
                     })
-                """
-                # 🌟🌟🌟 追加: 補助情報と選ばれた単語も保存 (他のデータと長さを合わせるため [1:] でスライス)
-            for i in range(len(event_types)):
-                raw_event_data_list.append({
-                    'true_types': event_types[i].tolist() if isinstance(event_types[i], np.ndarray) else event_types[i],
-                    'pred_types': event_type_preds[i].tolist() if isinstance(event_type_preds[i], np.ndarray) else event_type_preds[i],
-                    'true_times': event_times[i].tolist() if isinstance(event_times[i], np.ndarray) else event_times[i],
-                    'pred_times': event_time_preds[i].tolist() if isinstance(event_time_preds[i], np.ndarray) else event_time_preds[i],
-                    
-                    'mags': batch_mags[i][0:].tolist() if i < len(batch_mags) else [],
-                    'deps': batch_deps[i][0:].tolist() if i < len(batch_deps) else [],
-                    'lats': batch_lats[i][0:].tolist() if i < len(batch_lats) else [],
-                    'lons': batch_lons[i][0:].tolist() if i < len(batch_lons) else [],
-                    'time': batch_event_time_t[i][0:].tolist() if i < len(batch_event_time_t) else [],
-                    'type': batch_event_type_t[i][0:].tolist() if i < len(batch_event_type_t) else [],
-                    'tsne_type': batch_event_type_t[i].tolist() if i < len(batch_event_type_t) else [],
-                    'tsne_time': batch_event_time_t[i].tolist() if i < len(batch_event_time_t) else [],
-                    'words_p': batch_words_p[i][0:] if batch_words_p and i < len(batch_words_p) else [],
-                    'words_h': batch_words_h[i][0:] if batch_words_h and i < len(batch_words_h) else [],
-                    'dist_p': batch_distination_p[i][0:] if batch_distination_p and i < len(batch_distination_p) else [],
-                    'dist_h': batch_distination_h[i][0:] if batch_distination_h and i < len(batch_distination_h) else [],
-                    'dist_eq_p': batch_dist_eq_p[i][0:] if batch_dist_eq_p and i < len(batch_dist_eq_p) else [],
-                    'dist_eq_h': batch_dist_eq_h[i][0:] if batch_dist_eq_h and i < len(batch_dist_eq_h) else [],
-                    'input_vector':temp_embs_for_loss[i] if temp_embs_for_loss and i < len(temp_embs_for_loss) else [],
-                    'hidden_vector':batch_hidden_states[i] if batch_hidden_states and i < len(batch_hidden_states) else [],
-
-
-                })
-            """
+                
             all_event_types.append(np.concatenate(event_types))
             all_event_type_preds.append(np.concatenate(event_type_preds))
             all_event_times.append(np.concatenate(event_times))
@@ -927,10 +862,6 @@ class TPPLLMRunner(object):
                         )
             if save_flag or train_flag:
                 self.plot_learning_curves(result_save_path)
-        # 🌟🌟🌟 ここに追加 🌟🌟🌟
-        # 全ての学習ループが終わった（またはEarly Stoppingで抜けた）直後にグラフを描画・保存
-        #if save_flag or train_flag:
-        #    self.plot_learning_curves(result_save_path)
 
 
     # 修正前: def save(self, model_weight_path: str, weight_path: str):
